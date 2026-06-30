@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="description" content="Sparziele – behalte deine finanziellen Ziele im Blick. Fortschritt, Hochrechnung und Sparrate auf einen Blick." />
+  <meta name="theme-color" content="#16a34a" />
+
+  <title>Sparziele – deine finanziellen Ziele im Blick</title>
+
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="icon" href="./icons/icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png" />
+
+  <!-- Fonts: Space Grotesk (Display/Beträge) + Inter (UI). Wird vom Service Worker offline gecacht. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" />
+
+  <link rel="stylesheet" href="./css/styles.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Zum Inhalt springen</a>
+
+  <header class="app-header">
+    <div class="app-header__inner">
+      <div class="wordmark">
+        <span class="wordmark__mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="9" />
+            <circle cx="12" cy="12" r="4.5" />
+            <circle cx="12" cy="12" r="0.6" fill="currentColor" stroke="none" />
+          </svg>
+        </span>
+        <span class="wordmark__text">Sparziele</span>
+      </div>
+      <button class="btn btn--primary btn--header" id="addGoalHeaderBtn" type="button" hidden>
+        <span aria-hidden="true">+</span> Neues Ziel
+      </button>
+    </div>
+  </header>
+
+  <main id="main" class="container">
+    <!-- Gesamtübersicht -->
+    <section class="overview" id="overview" aria-label="Gesamtübersicht" hidden>
+      <div class="overview__head">
+        <p class="overview__label">Gespart gesamt</p>
+        <p class="overview__sub" id="overviewGoalCount"></p>
+      </div>
+      <p class="overview__amount">
+        <span id="overviewSaved" class="money money--xl">0&nbsp;€</span>
+        <span class="overview__of">von <span id="overviewTarget">0&nbsp;€</span></span>
+      </p>
+
+      <div class="progress overview__progress" role="progressbar" id="overviewProgress"
+           aria-label="Gesamtfortschritt" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+        <div class="progress__fill" id="overviewProgressFill"></div>
+      </div>
+      <div class="overview__meta">
+        <span class="overview__percent" id="overviewPercent">0&nbsp;%</span>
+        <span class="overview__missing" id="overviewMissing"></span>
+      </div>
+
+      <div class="overview__next" id="overviewNext" hidden>
+        <span class="overview__next-icon" id="overviewNextIcon" aria-hidden="true">🏁</span>
+        <span class="overview__next-text">
+          Nächstes Ziel: <strong id="overviewNextName"></strong>
+          <span class="overview__next-when" id="overviewNextWhen"></span>
+        </span>
+      </div>
+    </section>
+
+    <!-- Sortierung -->
+    <div class="toolbar" id="toolbar" hidden>
+      <span class="toolbar__label" id="sortLabel">Sortieren</span>
+      <div class="chips" role="group" aria-labelledby="sortLabel">
+        <button class="chip" type="button" data-sort="fortschritt" aria-pressed="true">Fortschritt</button>
+        <button class="chip" type="button" data-sort="datum" aria-pressed="false">Datum</button>
+        <button class="chip" type="button" data-sort="betrag" aria-pressed="false">Betrag</button>
+      </div>
+    </div>
+
+    <!-- Ziel-Liste -->
+    <ul class="goal-list" id="goalList" aria-label="Deine Sparziele"></ul>
+
+    <!-- Leer-Zustand -->
+    <section class="empty" id="emptyState" hidden>
+      <div class="empty__art" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="9" />
+          <circle cx="12" cy="12" r="4.5" />
+          <circle cx="12" cy="12" r="0.7" fill="currentColor" stroke="none" />
+        </svg>
+      </div>
+      <h2 class="empty__title">Noch keine Sparziele</h2>
+      <p class="empty__text">Leg dein erstes Ziel an – vom Notgroschen bis zum Traumurlaub. Du siehst sofort, wie weit du bist und wann du es erreichst.</p>
+      <button class="btn btn--primary btn--lg" id="emptyAddBtn" type="button">
+        <span aria-hidden="true">+</span> Erstes Ziel anlegen
+      </button>
+    </section>
+  </main>
+
+  <!-- FAB (mobil) -->
+  <button class="fab" id="fab" type="button" aria-label="Neues Ziel anlegen">
+    <span aria-hidden="true">+</span>
+  </button>
+
+  <!-- Modal: Ziel anlegen / bearbeiten -->
+  <div class="modal" id="goalModal" hidden>
+    <div class="modal__backdrop" data-close></div>
+    <div class="modal__sheet" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal__handle" aria-hidden="true"></div>
+      <div class="modal__head">
+        <h2 class="modal__title" id="modalTitle">Neues Ziel</h2>
+        <button class="icon-btn modal__close" type="button" data-close aria-label="Schließen">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+      </div>
+
+      <form class="form" id="goalForm" novalidate>
+        <input type="hidden" name="id" id="fieldId" />
+
+        <div class="field">
+          <label class="field__label" for="fieldName">Name</label>
+          <input class="input" type="text" id="fieldName" name="name" maxlength="40"
+                 placeholder="z. B. Notgroschen" autocomplete="off" required />
+          <p class="field__error" data-error-for="name"></p>
+        </div>
+
+        <div class="field">
+          <span class="field__label" id="iconLabel">Symbol</span>
+          <div class="icon-picker" id="iconPicker" role="radiogroup" aria-labelledby="iconLabel"></div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label class="field__label" for="fieldTarget">Zielbetrag</label>
+            <div class="input-affix">
+              <input class="input" type="number" id="fieldTarget" name="target" inputmode="decimal"
+                     min="0" step="0.01" placeholder="5000" required />
+              <span class="input-affix__suffix" aria-hidden="true">€</span>
+            </div>
+            <p class="field__error" data-error-for="target"></p>
+          </div>
+          <div class="field">
+            <label class="field__label" for="fieldCurrent">Aktuell</label>
+            <div class="input-affix">
+              <input class="input" type="number" id="fieldCurrent" name="current" inputmode="decimal"
+                     min="0" step="0.01" placeholder="0" />
+              <span class="input-affix__suffix" aria-hidden="true">€</span>
+            </div>
+            <p class="field__error" data-error-for="current"></p>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label class="field__label" for="fieldRate">Sparrate / Monat</label>
+            <div class="input-affix">
+              <input class="input" type="number" id="fieldRate" name="rate" inputmode="decimal"
+                     min="0" step="0.01" placeholder="200" />
+              <span class="input-affix__suffix" aria-hidden="true">€</span>
+            </div>
+            <p class="field__error" data-error-for="rate"></p>
+          </div>
+          <div class="field">
+            <label class="field__label" for="fieldDue">Zieldatum <span class="field__opt">(optional)</span></label>
+            <input class="input" type="date" id="fieldDue" name="dueDate" />
+          </div>
+        </div>
+
+        <div class="form__actions">
+          <button class="btn btn--ghost" type="button" data-close>Abbrechen</button>
+          <button class="btn btn--primary" type="submit" id="saveBtn">Speichern</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Lösch-Bestätigung -->
+  <div class="modal modal--confirm" id="confirmModal" hidden>
+    <div class="modal__backdrop" data-confirm-close></div>
+    <div class="modal__sheet modal__sheet--sm" role="alertdialog" aria-modal="true" aria-labelledby="confirmTitle" aria-describedby="confirmText">
+      <h2 class="modal__title" id="confirmTitle">Ziel löschen?</h2>
+      <p class="confirm__text" id="confirmText">Möchtest du dieses Ziel wirklich löschen?</p>
+      <div class="form__actions">
+        <button class="btn btn--ghost" type="button" data-confirm-close>Abbrechen</button>
+        <button class="btn btn--danger" type="button" id="confirmDeleteBtn">Löschen</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden>
+    <span class="toast__text" id="toastText"></span>
+    <button class="toast__action" id="toastAction" type="button" hidden>Rückgängig</button>
+  </div>
+
+  <script type="module" src="./js/app.js"></script>
+</body>
+</html>

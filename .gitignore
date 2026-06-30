@@ -1,0 +1,10 @@
+# Abhängigkeiten (nur Dev-Tool für Icon-Generierung)
+node_modules/
+package-lock.json
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+*.log
+.vscode/
+.idea/
