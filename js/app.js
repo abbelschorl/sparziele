@@ -61,7 +61,20 @@ const el = {
   toast: $('#toast'),
   toastText: $('#toastText'),
   toastAction: $('#toastAction'),
+
+  themeToggle: $('#themeToggle'),
+  themeColorMeta: $('#themeColorMeta'),
+
+  depositModal: $('#depositModal'),
+  depositTitle: $('#depositTitle'),
+  depositStatus: $('#depositStatus'),
+  depositForm: $('#depositForm'),
+  depositAmount: $('#depositAmount'),
+  depositError: $('#depositError'),
+  depositChips: $('#depositChips'),
 };
+
+let depositGoalId = null;
 
 /* ---------------------------------------------------------------
    Rendering
@@ -166,6 +179,12 @@ function buildCard(g, index) {
     ? `<span class="badge badge--${g.dueStatus.type === 'warn' ? 'warn' : 'ok'}">${escapeHtml(g.dueStatus.text)}</span>`
     : '';
 
+  const depositBtn = g.isDone
+    ? ''
+    : `<button class="goal__deposit" type="button" data-deposit aria-label="Für „${escapeHtml(g.name)}“ einzahlen">
+         <span aria-hidden="true">+</span> Einzahlen
+       </button>`;
+
   li.innerHTML = `
     <div class="goal__top">
       <div class="goal__icon" aria-hidden="true">${escapeHtml(g.icon)}</div>
@@ -204,6 +223,7 @@ function buildCard(g, index) {
         <strong>${escapeHtml(g.projectionText)}</strong>
         ${g.isDone ? '' : `<span class="goal__target"> · noch ${escapeHtml(formatEuro(g.missing))} von <b>${escapeHtml(formatEuro(g.target))}</b></span>`}
       </span>
+      ${depositBtn}
     </div>
     ${dueBadge ? `<div style="margin-top:8px">${dueBadge}</div>` : ''}
     ${nextHint}
@@ -416,6 +436,109 @@ function hideToast() {
 }
 
 /* ---------------------------------------------------------------
+   Theme (Hell / Dunkel)
+--------------------------------------------------------------- */
+function currentTheme() {
+  return document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
+}
+
+function applyTheme(theme) {
+  document.documentElement.dataset.theme = theme;
+  el.themeToggle.setAttribute('aria-pressed', String(theme === 'dark'));
+  if (el.themeColorMeta) {
+    el.themeColorMeta.setAttribute('content', theme === 'dark' ? '#0b0f14' : '#16a34a');
+  }
+}
+
+function toggleTheme() {
+  const next = currentTheme() === 'dark' ? 'light' : 'dark';
+  applyTheme(next);
+  try { localStorage.setItem('sparziele.theme', next); } catch { /* ignore */ }
+}
+
+/* ---------------------------------------------------------------
+   Einzahlungen
+--------------------------------------------------------------- */
+function openDeposit(id) {
+  const g = state.goals.find((x) => x.id === id);
+  if (!g) return;
+  depositGoalId = id;
+  lastFocused = document.activeElement;
+  el.depositTitle.textContent = `Einzahlung – ${g.name}`;
+  el.depositAmount.value = '';
+  el.depositAmount.removeAttribute('aria-invalid');
+  el.depositError.textContent = '';
+  updateDepositStatus(g, 0);
+  buildDepositChips(g);
+  el.depositModal.hidden = false;
+  document.body.style.overflow = 'hidden';
+  setTimeout(() => el.depositAmount.focus(), 50);
+}
+
+function updateDepositStatus(g, amount) {
+  const next = g.current + (Number(amount) || 0);
+  el.depositStatus.innerHTML =
+    `Aktuell <b>${escapeHtml(formatEuro(g.current))}</b> → neu ` +
+    `<b>${escapeHtml(formatEuro(next))}</b> von ${escapeHtml(formatEuro(g.target))}`;
+}
+
+function buildDepositChips(g) {
+  el.depositChips.innerHTML = '';
+  const values = [];
+  if (g.rate > 0) values.push(g.rate);
+  [50, 100].forEach((v) => { if (!values.includes(v)) values.push(v); });
+
+  values.slice(0, 3).forEach((v) => addDepositChip(g, `+${formatEuro(v)}`, v));
+
+  const missing = Math.max(0, g.target - g.current);
+  if (missing > 0) addDepositChip(g, `Rest · ${formatEuro(missing)}`, missing);
+}
+
+function addDepositChip(g, label, value) {
+  const chip = document.createElement('button');
+  chip.type = 'button';
+  chip.className = 'chip';
+  chip.textContent = label;
+  chip.addEventListener('click', () => {
+    el.depositAmount.value = String(value);
+    el.depositAmount.removeAttribute('aria-invalid');
+    el.depositError.textContent = '';
+    updateDepositStatus(g, value);
+    el.depositAmount.focus();
+  });
+  el.depositChips.appendChild(chip);
+}
+
+function closeDeposit() {
+  el.depositModal.hidden = true;
+  document.body.style.overflow = '';
+  depositGoalId = null;
+  restoreFocus();
+}
+
+function submitDeposit(e) {
+  e.preventDefault();
+  const g = state.goals.find((x) => x.id === depositGoalId);
+  if (!g) { closeDeposit(); return; }
+
+  const amount = el.depositAmount.value === '' ? NaN : Number(el.depositAmount.value);
+  if (!Number.isFinite(amount) || amount <= 0) {
+    el.depositError.textContent = 'Bitte einen Betrag größer als 0 eingeben.';
+    el.depositAmount.setAttribute('aria-invalid', 'true');
+    el.depositAmount.focus();
+    return;
+  }
+
+  const wasDone = g.current >= g.target;
+  g.current = Math.round((g.current + amount) * 100) / 100;
+  persist();
+  const reached = !wasDone && g.current >= g.target;
+  closeDeposit();
+  render();
+  toast(reached ? `🎉 Ziel „${g.name}“ erreicht!` : `${formatEuro(amount)} eingezahlt`);
+}
+
+/* ---------------------------------------------------------------
    Helpers
 --------------------------------------------------------------- */
 function escapeHtml(str) {
@@ -452,6 +575,8 @@ function bind() {
       if (g) openModal(g);
     } else if (e.target.closest('[data-delete]')) {
       askDelete(id);
+    } else if (e.target.closest('[data-deposit]')) {
+      openDeposit(id);
     }
   });
 
@@ -462,6 +587,21 @@ function bind() {
     node.addEventListener('click', closeConfirm));
   el.confirmDeleteBtn.addEventListener('click', doDelete);
 
+  // Einzahlung
+  el.depositForm.addEventListener('submit', submitDeposit);
+  el.depositModal.querySelectorAll('[data-deposit-close]').forEach((node) =>
+    node.addEventListener('click', closeDeposit));
+  el.depositAmount.addEventListener('input', () => {
+    el.depositAmount.removeAttribute('aria-invalid');
+    el.depositError.textContent = '';
+    const g = state.goals.find((x) => x.id === depositGoalId);
+    if (g) updateDepositStatus(g, el.depositAmount.value);
+  });
+
+  // Theme
+  el.themeToggle.addEventListener('click', toggleTheme);
+  applyTheme(currentTheme()); // aria-pressed + Meta mit dem früh gesetzten Theme synchronisieren
+
   el.toastAction.addEventListener('click', undoDelete);
 
   // Tastatur: Esc schließt, Tab-Fokusfalle im offenen Modal
@@ -469,12 +609,17 @@ function bind() {
 }
 
 function onKeydown(e) {
-  const openOverlay = !el.modal.hidden ? el.modal : (!el.confirmModal.hidden ? el.confirmModal : null);
+  const openOverlay = !el.modal.hidden ? el.modal
+    : !el.confirmModal.hidden ? el.confirmModal
+    : !el.depositModal.hidden ? el.depositModal
+    : null;
   if (!openOverlay) return;
 
   if (e.key === 'Escape') {
     e.preventDefault();
-    if (openOverlay === el.modal) closeModal(); else closeConfirm();
+    if (openOverlay === el.modal) closeModal();
+    else if (openOverlay === el.confirmModal) closeConfirm();
+    else closeDeposit();
     return;
   }
   if (e.key === 'Tab') trapFocus(e, openOverlay.querySelector('.modal__sheet'));

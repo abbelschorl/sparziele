@@ -4,7 +4,7 @@
 //   • Google Fonts: stale-while-revalidate (offline nach Erstbesuch)
 //   • Navigationen: Network-First mit Offline-Fallback auf index.html
 
-const VERSION = 'sparziele-v1';
+const VERSION = 'sparziele-v2';
 const SHELL_CACHE = `${VERSION}-shell`;
 const FONT_CACHE = `${VERSION}-fonts`;
 

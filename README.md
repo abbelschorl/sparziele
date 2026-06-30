@@ -16,8 +16,10 @@ wie weit du bist und **wann** du dein Ziel erreichst.
 - **Pro Ziel**: animierter Fortschrittsbalken, Prozentsatz, fehlender Betrag und Hochrechnung „*Erreicht in X Monaten · Monat Jahr*"
 - **Signature-Detail**: ein helleres „Ghost"-Segment im Balken zeigt, wo du nach dem **nächsten Sparmonat** stehst
 - **Gesamtübersicht**: Summe aller Ziele, Gesamtfortschritt und das **nächste erreichbare Ziel**
+- **Einzahlen** direkt auf der Karte: Schnellbetrag-Chips (Sparrate, +50 €, +100 €, „Rest auffüllen") erhöhen den aktuellen Stand
 - **Bearbeiten & Löschen** – inkl. *Rückgängig* nach dem Löschen
 - **Sortierung** nach Fortschritt / Datum / Betrag (wird gespeichert)
+- **Hell- & Dunkelmodus** – folgt dem System, manuell umschaltbar, wird gespeichert
 - **Leer-Zustand** mit klarem Call-to-Action
 - **Offline-fähig** dank Service Worker · installierbar als App
 - Mobile-first, responsiv, mit Fokus auf Barrierefreiheit (Tastatur, Fokusringe, `prefers-reduced-motion`)

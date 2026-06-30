@@ -9,6 +9,7 @@
   --green-bright: #22c55e;
   --green-tint:   #dcfce7;
   --green-ghost:  #86efac;
+  --accent-text:  #15803d;  /* grüner Text auf Tint-Flächen (Theme-abhängig) */
 
   /* Flächen */
   --bg:      #f7f8fa;
@@ -50,6 +51,53 @@
 
   --ease: cubic-bezier(.22, .61, .36, 1);
 }
+
+/* ---- Dark Mode ---- */
+:root[data-theme="dark"] {
+  --green:        #22c55e;
+  --green-deep:   #16a34a;
+  --green-bright: #34d399;
+  --green-tint:   rgba(34, 197, 94, .16);
+  --green-ghost:  #4ade80;
+  --accent-text:  #4ade80;
+
+  --bg:        #0b0f14;
+  --surface:   #151b23;
+  --surface-2: #1d242d;
+
+  --ink:    #f1f5f9;
+  --ink-2:  #cbd5e1;
+  --muted:  #94a3b8;
+  --muted-2:#64748b;
+
+  --warn:   #fbbf24;
+  --warn-tint: rgba(251, 191, 36, .16);
+  --danger: #f87171;
+  --danger-tint: rgba(248, 113, 113, .16);
+
+  --line:   #283039;
+  --line-2: #333d49;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, .35);
+  --shadow-md: 0 8px 20px -8px rgba(0, 0, 0, .55);
+  --shadow-lg: 0 24px 48px -12px rgba(0, 0, 0, .65);
+}
+/* Flächen mit fest kodierten Hellwerten für Dark Mode überschreiben */
+:root[data-theme="dark"] body {
+  background-image: radial-gradient(120% 60% at 50% -10%, rgba(34, 197, 94, .10), transparent 60%);
+}
+:root[data-theme="dark"] .app-header { background: rgba(11, 15, 20, .82); }
+:root[data-theme="dark"] .overview {
+  background:
+    radial-gradient(120% 130% at 100% 0%, rgba(34, 197, 94, .14), transparent 55%),
+    linear-gradient(165deg, #161d26, #121821);
+}
+:root[data-theme="dark"] .goal.is-done {
+  background: linear-gradient(160deg, #161d26, #12231a);
+}
+:root[data-theme="dark"] .toast { background: #0b0f14; border: 1px solid var(--line); }
+:root[data-theme="dark"] .skip-link { background: #1f2730; }
+:root[data-theme="dark"] .input:hover { background: #232c36; }
 
 * { box-sizing: border-box; }
 
@@ -122,6 +170,13 @@ button { font-family: inherit; }
 .wordmark__text {
   font-weight: 700; font-size: 1.18rem; letter-spacing: -.02em; color: var(--ink);
 }
+.app-header__actions { display: flex; align-items: center; gap: 6px; }
+
+.theme-toggle { color: var(--muted); }
+.theme-toggle:hover { color: var(--ink); }
+.theme-toggle__moon { display: none; }
+:root[data-theme="dark"] .theme-toggle__sun { display: none; }
+:root[data-theme="dark"] .theme-toggle__moon { display: block; }
 
 /* ============================================================
    Buttons
@@ -178,7 +233,7 @@ button { font-family: inherit; }
 .overview__head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
 .overview__label {
   margin: 0; font-size: .8rem; font-weight: 600; letter-spacing: .04em;
-  text-transform: uppercase; color: var(--green-deep);
+  text-transform: uppercase; color: var(--accent-text);
 }
 .overview__sub { margin: 0; font-size: .8rem; color: var(--muted); }
 .overview__amount {
@@ -192,7 +247,7 @@ button { font-family: inherit; }
 .overview__meta {
   margin-top: 9px; display: flex; align-items: center; justify-content: space-between; gap: 10px;
 }
-.overview__percent { font-family: var(--font-money); font-weight: 600; font-size: 1.05rem; color: var(--green-deep); }
+.overview__percent { font-family: var(--font-money); font-weight: 600; font-size: 1.05rem; color: var(--accent-text); }
 .overview__missing { font-size: .85rem; color: var(--muted); }
 
 .overview__next {
@@ -202,7 +257,7 @@ button { font-family: inherit; }
   font-size: .9rem; color: var(--ink-2);
 }
 .overview__next-icon { font-size: 1.1rem; line-height: 1; }
-.overview__next strong { color: var(--green-deep); font-weight: 700; }
+.overview__next strong { color: var(--accent-text); font-weight: 700; }
 .overview__next-when { color: var(--ink-2); }
 .overview__next-when::before { content: '· '; color: var(--muted-2); }
 
@@ -274,7 +329,7 @@ button { font-family: inherit; }
 .goal__target b { font-family: var(--font-money); font-weight: 600; color: var(--ink-2); font-variant-numeric: tabular-nums; }
 .goal__pct {
   font-family: var(--font-money); font-weight: 700; font-size: 1rem;
-  color: var(--green-deep);
+  color: var(--accent-text);
   background: var(--green-tint); padding: 3px 9px; border-radius: var(--r-full);
 }
 .goal.is-done .goal__pct { background: var(--green); color: #fff; }
@@ -318,14 +373,33 @@ button { font-family: inherit; }
   font-size: .8rem; color: var(--muted); margin-top: 6px;
   display: flex; align-items: center; gap: 6px;
 }
-.goal__next-hint b { font-family: var(--font-money); color: var(--green-deep); font-weight: 600; }
+.goal__next-hint b { font-family: var(--font-money); color: var(--accent-text); font-weight: 600; }
 
 .badge {
   display: inline-flex; align-items: center; gap: 5px;
   font-size: .78rem; font-weight: 600; padding: 3px 9px; border-radius: var(--r-full);
 }
 .badge--warn { background: var(--warn-tint); color: var(--warn); }
-.badge--ok { background: var(--green-tint); color: var(--green-deep); }
+.badge--ok { background: var(--green-tint); color: var(--accent-text); }
+
+/* „Einzahlen"-Schnellaktion */
+.goal__deposit {
+  appearance: none; cursor: pointer; flex-shrink: 0;
+  display: inline-flex; align-items: center; gap: 5px;
+  font-weight: 600; font-size: .82rem;
+  color: var(--accent-text); background: var(--green-tint);
+  border: 0; padding: 6px 12px; border-radius: var(--r-full);
+  transition: background .15s var(--ease), transform .12s var(--ease);
+}
+.goal__deposit:hover { background: var(--green-ghost); }
+.goal__deposit:active { transform: scale(.96); }
+:root[data-theme="dark"] .goal__deposit:hover { background: rgba(34, 197, 94, .26); }
+
+/* Einzahlungs-Dialog */
+.deposit__status { color: var(--muted); margin: 4px 0 16px; font-size: .92rem; }
+.deposit__status b { font-family: var(--font-money); color: var(--ink); font-weight: 600; }
+.deposit__chips { margin-top: 12px; }
+.deposit__chips .chip { font-family: var(--font-money); }
 
 /* ============================================================
    Leer-Zustand
