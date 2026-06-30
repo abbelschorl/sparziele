@@ -1,10 +1,9 @@
 // sw.js – Service Worker für Offline-Fähigkeit
 // Strategie:
-//   • App-Shell: cache-first (versioniert, beim Update neu vorgeladen)
+//   • App-Shell & Navigationen: network-first (online immer frisch, offline aus Cache)
 //   • Google Fonts: stale-while-revalidate (offline nach Erstbesuch)
-//   • Navigationen: Network-First mit Offline-Fallback auf index.html
 
-const VERSION = 'sparziele-v2';
+const VERSION = 'sparziele-v3';
 const SHELL_CACHE = `${VERSION}-shell`;
 const FONT_CACHE = `${VERSION}-fonts`;
 
@@ -55,7 +54,7 @@ self.addEventListener('fetch', (event) => {
   // Nur eigener Origin ab hier
   if (url.origin !== self.location.origin) return;
 
-  // Navigationen – Network-First, Fallback auf gecachte index.html
+  // Navigationen – network-first, Fallback auf gecachte index.html
   if (request.mode === 'navigate') {
     event.respondWith(
       fetch(request).catch(() =>
@@ -65,15 +64,15 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // App-Shell – cache-first
+  // App-Shell – network-first: online immer frisch, offline aus Cache
   event.respondWith(
-    caches.match(request, { ignoreSearch: true }).then((cached) =>
-      cached || fetch(request).then((res) => {
+    fetch(request)
+      .then((res) => {
         const copy = res.clone();
         caches.open(SHELL_CACHE).then((cache) => cache.put(request, copy));
         return res;
-      }).catch(() => cached)
-    )
+      })
+      .catch(() => caches.match(request, { ignoreSearch: true }))
   );
 });
 

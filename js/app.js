@@ -30,6 +30,7 @@ const el = {
   overviewMissing: $('#overviewMissing'),
   overviewGoalCount: $('#overviewGoalCount'),
   overviewNext: $('#overviewNext'),
+  overviewNextLabel: $('.overview__next-label'),
   overviewNextName: $('#overviewNextName'),
   overviewNextWhen: $('#overviewNextWhen'),
   overviewNextIcon: $('#overviewNextIcon'),
@@ -119,11 +120,13 @@ function renderOverview() {
 
   if (o.next) {
     el.overviewNext.hidden = false;
+    el.overviewNextLabel.textContent = 'Als Nächstes erreichbar';
     el.overviewNextIcon.textContent = o.next.icon || '🏁';
     el.overviewNextName.textContent = o.next.name;
     el.overviewNextWhen.textContent = `vsl. ${o.next.when}`;
   } else if (o.allDone) {
     el.overviewNext.hidden = false;
+    el.overviewNextLabel.textContent = 'Geschafft';
     el.overviewNextIcon.textContent = '🎉';
     el.overviewNextName.textContent = 'Alle Ziele erreicht!';
     el.overviewNextWhen.textContent = '';
@@ -446,7 +449,7 @@ function applyTheme(theme) {
   document.documentElement.dataset.theme = theme;
   el.themeToggle.setAttribute('aria-pressed', String(theme === 'dark'));
   if (el.themeColorMeta) {
-    el.themeColorMeta.setAttribute('content', theme === 'dark' ? '#0b0f14' : '#16a34a');
+    el.themeColorMeta.setAttribute('content', theme === 'dark' ? '#0d1830' : '#2563eb');
   }
 }
 

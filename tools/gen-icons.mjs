@@ -28,7 +28,7 @@ const targets = [
 
 for (const { file, size } of targets) {
   const png = await sharp(svg, { density: 384 })
-    .resize(size, size, { fit: 'contain', background: { r: 21, g: 128, b: 61, alpha: 1 } })
+    .resize(size, size, { fit: 'contain', background: { r: 29, g: 78, b: 216, alpha: 1 } })
     .png()
     .toBuffer();
   await writeFile(join(iconsDir, file), png);
