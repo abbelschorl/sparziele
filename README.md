@@ -1,5 +1,7 @@
 # Sparziele 🎯
 
+![Sparziele](./og-image.png)
+
 Eine schlanke **Progressive Web App** zum Anlegen und Verfolgen finanzieller Sparziele –
 ein Feature-Prototyp inspiriert von der **Finanzfluss-Copilot**-App.
 
@@ -8,7 +10,12 @@ wie weit du bist und **wann** du dein Ziel erreichst.
 
 **🔗 Live:** Landingpage `https://DEIN-GITHUB-NAME.github.io/sparziele/` · Demo `…/sparziele/app/`
 
-![Vanilla JS](https://img.shields.io/badge/Vanilla_JS-kein_Build-2563eb) ![PWA](https://img.shields.io/badge/PWA-offline--f%C3%A4hig-2563eb) ![Daten](https://img.shields.io/badge/Daten-localStorage-2563eb)
+<!-- Tests-Badge: DEIN-GITHUB-NAME ersetzen, sobald das Repo auf GitHub liegt -->
+![Tests](https://github.com/DEIN-GITHUB-NAME/sparziele/actions/workflows/test.yml/badge.svg)
+![Vanilla JS](https://img.shields.io/badge/Vanilla_JS-kein_Build-2563eb)
+![PWA](https://img.shields.io/badge/PWA-offline--f%C3%A4hig-2563eb)
+![Daten](https://img.shields.io/badge/Daten-localStorage-2563eb)
+![License](https://img.shields.io/badge/License-MIT-2563eb)
 
 ---
 
@@ -25,6 +32,18 @@ wie weit du bist und **wann** du dein Ziel erreichst.
 - **Leer-Zustand** mit klarem Call-to-Action
 - **Offline-fähig** dank Service Worker · installierbar als App
 - Mobile-first, responsiv, mit Fokus auf Barrierefreiheit (Tastatur, Fokusringe, `prefers-reduced-motion`)
+
+---
+
+## 📸 Screenshots
+
+> _Platzhalter – eigene Screenshots einfügen (`Cmd+Shift+4`), im Ordner `docs/` ablegen und Pfade unten anpassen._
+
+| Übersicht (hell) | Dunkelmodus | Ziel anlegen |
+|---|---|---|
+| ![Übersicht](docs/screenshot-light.png) | ![Dunkelmodus](docs/screenshot-dark.png) | ![Formular](docs/screenshot-form.png) |
+
+Für ein animiertes GIF (App in Aktion) eignet sich die macOS-Bildschirmaufnahme (`Cmd+Shift+5`).
 
 ---
 
@@ -92,12 +111,42 @@ Der mitgelieferte Workflow (`.github/workflows/deploy.yml`) deployt dann bei jed
 
 ---
 
-## 🛠️ Icons neu generieren (optional)
+## 🛠️ Grafiken neu generieren (optional)
 
 ```bash
 npm install --no-save sharp
-node tools/gen-icons.mjs
+node tools/gen-icons.mjs   # App-Icons (PNG) aus app/icons/icon.svg
+node tools/gen-og.mjs      # Vorschaubild og-image.png aus tools/og-image.svg
 ```
+
+---
+
+## 🧩 Architektur
+
+Bewusst schlank und ohne Build-Step – die ausgelieferten Dateien sind exakt der Code.
+Die Logik ist in kleine ES-Module getrennt, damit sie testbar und lesbar bleibt:
+
+- **`app/js/storage.js`** – Persistenz: lädt/speichert den Zustand in `localStorage`, legt beim
+  Erststart Seed-Daten an, normalisiert eingelesene Ziele.
+- **`app/js/calc.js`** – reine Rechen-/Formatier-Funktionen (keine DOM-Zugriffe): Hochrechnung,
+  „nächstes erreichbares Ziel", Sortierung, `de-DE`-Formatierung. **Genau hier setzen die Unit-Tests an.**
+- **`app/js/app.js`** – dünne UI-Schicht: State-Halten, Rendern, Events, Modals, Service-Worker-Registrierung.
+
+Weil `calc.js` frei von Seiteneffekten ist, lässt es sich in Node ohne Browser testen.
+
+---
+
+## ✅ Tests
+
+Unit-Tests für die Rechen-Logik mit dem **eingebauten Node-Test-Runner** (keine Test-Dependencies):
+
+```bash
+npm test          # bzw.  node --test
+```
+
+Die Tests (`tests/calc.test.mjs`) prüfen u. a. Prozent/Restbetrag, Monats-Hochrechnung (Aufrunden),
+erreichte & übersparte Ziele, Sortierung und Währungsformat. Sie laufen bei jedem Push automatisch
+per GitHub Actions (`.github/workflows/test.yml`) → siehe Tests-Badge oben.
 
 ---
 
@@ -105,7 +154,14 @@ node tools/gen-icons.mjs
 
 - **Vanilla JS** (ES-Module), kein Framework, kein Bundler
 - **localStorage** als einzige Persistenz – kein Backend, keine Tracker
-- **Service Worker** mit cache-first App-Shell und stale-while-revalidate für Schriften
+- **Service Worker** – network-first für die App-Shell (online immer frisch, offline aus Cache),
+  stale-while-revalidate für Schriften
 - Schriften: *Space Grotesk* (Beträge) & *Inter* (UI)
+
+---
+
+## 📄 Lizenz
+
+[MIT](./LICENSE) – frei nutzbar.
 
 > Prototyp / Demo – keine echte Finanzberatung.

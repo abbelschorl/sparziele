@@ -1,0 +1,13 @@
+{
+  "name": "sparziele",
+  "version": "1.0.0",
+  "description": "PWA-Prototyp zur Visualisierung finanzieller Sparziele – Vanilla JS, offline-fähig, ohne Backend.",
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "start": "python3 -m http.server 5173"
+  },
+  "keywords": ["pwa", "vanilla-js", "finance", "sparziele", "prototype"],
+  "license": "MIT",
+  "private": true
+}
