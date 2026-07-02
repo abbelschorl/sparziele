@@ -6,7 +6,9 @@ ein Feature-Prototyp inspiriert von der **Finanzfluss-Copilot**-App.
 Lege Ziele wie *Notgroschen*, *Urlaub* oder *ETF-Anlage* an und sieh auf einen Blick,
 wie weit du bist und **wann** du dein Ziel erreichst.
 
-![Vanilla JS](https://img.shields.io/badge/Vanilla_JS-kein_Build-16a34a) ![PWA](https://img.shields.io/badge/PWA-offline--f%C3%A4hig-16a34a) ![Daten](https://img.shields.io/badge/Daten-localStorage-16a34a)
+**🔗 Live:** Landingpage `https://DEIN-GITHUB-NAME.github.io/sparziele/` · Demo `…/sparziele/app/`
+
+![Vanilla JS](https://img.shields.io/badge/Vanilla_JS-kein_Build-2563eb) ![PWA](https://img.shields.io/badge/PWA-offline--f%C3%A4hig-2563eb) ![Daten](https://img.shields.io/badge/Daten-localStorage-2563eb)
 
 ---
 
@@ -33,13 +35,14 @@ Die App braucht **keinen Build-Schritt**, aber einen lokalen Server (für ES-Mod
 ```bash
 # Variante A – Python (vorinstalliert auf macOS/Linux)
 python3 -m http.server 5173
-# -> http://localhost:5173
+# -> http://localhost:5173         (Landingpage)
+# -> http://localhost:5173/app/    (die App direkt)
 
 # Variante B – Node
 npx serve -l 5173 .
 ```
 
-> Direktes Öffnen der `index.html` über `file://` funktioniert nicht (Module/Service Worker brauchen `http(s)`).
+> Direktes Öffnen über `file://` funktioniert nicht (Module/Service Worker brauchen `http(s)`).
 
 ---
 
@@ -47,21 +50,21 @@ npx serve -l 5173 .
 
 ```
 Sparziele/
-├── index.html              # App-Shell (relative Pfade)
-├── css/styles.css          # Design-Token-System + Komponenten
-├── js/
-│   ├── app.js              # State, Rendering, Events, SW-Registrierung
-│   ├── storage.js          # localStorage + Seed-Daten
-│   └── calc.js             # Hochrechnung, Sortierung, de-DE-Formatierung
-├── manifest.webmanifest    # PWA-Manifest
-├── sw.js                   # Service Worker (Offline-Cache)
-├── icons/                  # App-Icons (SVG + PNGs)
-├── tools/gen-icons.mjs     # Generiert die PNG-Icons aus icon.svg
-└── .github/workflows/      # Auto-Deploy zu GitHub Pages
+├── index.html                  # Landingpage (Portfolio / Recruiter)
+├── landing/landing.css         # Styles der Landingpage
+├── app/                        # die PWA (eigenständig lauffähig)
+│   ├── index.html              # App-Shell (relative Pfade)
+│   ├── css/styles.css          # Design-Token-System + Komponenten
+│   ├── js/{app,storage,calc}.js
+│   ├── manifest.webmanifest    # PWA-Manifest
+│   ├── sw.js                   # Service Worker (Offline)
+│   └── icons/                  # App-Icons (SVG + PNGs)
+├── tools/gen-icons.mjs         # Generiert die PNG-Icons aus icon.svg
+└── .github/workflows/          # Auto-Deploy zu GitHub Pages
 ```
 
-Alle Pfade sind **relativ** – die App läuft sowohl unter `https://<user>.github.io/<repo>/`
-als auch in jedem Unterordner.
+Alle Pfade in der App sind **relativ** – sie läuft dadurch unverändert unter `/app/`,
+in jedem Unterordner und unter `https://<user>.github.io/<repo>/`.
 
 ---
 
@@ -81,7 +84,11 @@ git push -u origin main
 Anschließend einmalig in GitHub: **Settings → Pages → Build and deployment → Source: „GitHub Actions"**.
 Der mitgelieferte Workflow (`.github/workflows/deploy.yml`) deployt dann bei jedem Push auf `main` automatisch.
 
-**Live-Link** danach: `https://<DEIN-USERNAME>.github.io/sparziele/`
+**Live-Links** danach:
+- Landingpage (Portfolio): `https://<DEIN-USERNAME>.github.io/sparziele/`
+- App direkt: `https://<DEIN-USERNAME>.github.io/sparziele/app/`
+
+> Push braucht statt Passwort einen **Personal Access Token** (Scope `repo`) – oder nutze GitHub Desktop.
 
 ---
 

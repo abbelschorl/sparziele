@@ -2,253 +2,169 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="description" content="Sparziele – behalte deine finanziellen Ziele im Blick. Fortschritt, Hochrechnung und Sparrate auf einen Blick." />
-  <meta name="theme-color" content="#2563eb" id="themeColorMeta" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0d1830" />
+  <meta name="description" content="Sparziele – ein Feature-Prototyp zur Visualisierung finanzieller Ziele, inspiriert vom Finanzfluss Copilot. Vanilla-JS-PWA, offline-fähig, ohne Backend." />
 
-  <!-- Theme früh setzen, um Flackern zu vermeiden -->
-  <script>
-    (function () {
-      try {
-        var stored = localStorage.getItem('sparziele.theme');
-        var dark = stored ? stored === 'dark'
-          : window.matchMedia('(prefers-color-scheme: dark)').matches;
-        document.documentElement.dataset.theme = dark ? 'dark' : 'light';
-      } catch (e) { document.documentElement.dataset.theme = 'light'; }
-    })();
-  </script>
+  <title>Sparziele – Feature-Prototyp für finanzielle Ziele</title>
 
-  <title>Sparziele – deine finanziellen Ziele im Blick</title>
+  <link rel="icon" href="./app/icons/icon.svg" type="image/svg+xml" />
 
-  <link rel="manifest" href="./manifest.webmanifest" />
-  <link rel="icon" href="./icons/icon.svg" type="image/svg+xml" />
-  <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png" />
+  <!-- Open Graph (für geteilte Links in Bewerbungen/Chats) -->
+  <meta property="og:title" content="Sparziele – Prototyp für finanzielle Ziele" />
+  <meta property="og:description" content="Interaktive PWA-Demo: Sparziele anlegen, Fortschritt & Hochrechnung sehen. Vanilla JS, PWA, kein Backend." />
+  <meta property="og:type" content="website" />
 
-  <!-- Fonts: Space Grotesk (Display/Beträge) + Inter (UI). Wird vom Service Worker offline gecacht. -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" />
 
-  <link rel="stylesheet" href="./css/styles.css" />
+  <link rel="stylesheet" href="./landing/landing.css" />
 </head>
 <body>
-  <a class="skip-link" href="#main">Zum Inhalt springen</a>
+  <a class="skip-link" href="#hauptinhalt">Zum Inhalt springen</a>
 
-  <header class="app-header">
-    <div class="app-header__inner">
-      <div class="wordmark">
-        <span class="wordmark__mark" aria-hidden="true">
-          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="9" />
-            <circle cx="12" cy="12" r="4.5" />
-            <circle cx="12" cy="12" r="0.6" fill="currentColor" stroke="none" />
-          </svg>
+  <!-- ============================ HERO ============================ -->
+  <header class="hero">
+    <nav class="nav">
+      <div class="nav__brand">
+        <span class="nav__mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r=".6" fill="currentColor" stroke="none"/></svg>
         </span>
-        <span class="wordmark__text">Sparziele</span>
+        <span class="nav__name">Sparziele</span>
       </div>
-      <div class="app-header__actions">
-        <button class="icon-btn theme-toggle" id="themeToggle" type="button" aria-label="Dunkelmodus umschalten" aria-pressed="false">
-          <svg class="theme-toggle__sun" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
-          <svg class="theme-toggle__moon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>
-        </button>
-        <button class="btn btn--primary btn--header" id="addGoalHeaderBtn" type="button">
-          <span aria-hidden="true">+</span> Neues Ziel
-        </button>
+      <div class="nav__links">
+        <!-- TODO: DEIN-GITHUB-NAME ersetzen -->
+        <a class="nav__link" href="https://github.com/DEIN-GITHUB-NAME/sparziele" target="_blank" rel="noopener">GitHub</a>
+        <a class="btn btn--sm" href="./app/">Demo öffnen</a>
+      </div>
+    </nav>
+
+    <div class="hero__inner" id="hauptinhalt">
+      <div class="hero__copy">
+        <p class="eyebrow">Feature-Prototyp · Finanzfluss-inspiriert</p>
+        <h1 class="hero__title">Finanzielle Ziele,<br />die man <span class="accent">wachsen sieht</span>.</h1>
+        <p class="hero__lead">
+          „Sparziele" macht sichtbar, wie nah du deinen Zielen bist – mit animiertem Fortschritt,
+          ehrlicher Hochrechnung „<em>erreicht in X Monaten</em>" und Einzahlungen mit einem Tipp.
+          Ein interaktiver Prototyp für das meistgewünschte Community-Feature der Finanzfluss-Copilot-App.
+        </p>
+        <div class="hero__cta">
+          <a class="btn btn--lg" href="./app/">
+            <span aria-hidden="true">▶</span> Live-Demo öffnen
+          </a>
+          <!-- TODO: DEIN-GITHUB-NAME ersetzen -->
+          <a class="btn btn--lg btn--ghost" href="https://github.com/DEIN-GITHUB-NAME/sparziele" target="_blank" rel="noopener">
+            Code ansehen
+          </a>
+        </div>
+        <ul class="hero__meta">
+          <li>Vanilla JS</li>
+          <li>PWA · offline-fähig</li>
+          <li>kein Backend</li>
+        </ul>
+      </div>
+
+      <!-- Signature: die echte App, live im Handy-Rahmen -->
+      <div class="hero__preview">
+        <div class="phone" aria-label="Live-Vorschau der App">
+          <div class="phone__notch" aria-hidden="true"></div>
+          <iframe class="phone__screen" src="./app/" title="Sparziele – interaktive Live-Demo" loading="lazy"></iframe>
+        </div>
+        <a class="phone__open" href="./app/">In Vollbild öffnen ↗</a>
       </div>
     </div>
   </header>
 
-  <main id="main" class="container">
-    <!-- Gesamtübersicht -->
-    <section class="overview" id="overview" aria-label="Gesamtübersicht" hidden>
-      <div class="overview__top">
-        <div class="overview__lead">
-          <p class="overview__label">Gespart gesamt <span class="overview__count" id="overviewGoalCount"></span></p>
-          <p class="overview__amount">
-            <span id="overviewSaved" class="money money--xl">0&nbsp;€</span>
-            <span class="overview__of">von <span id="overviewTarget">0&nbsp;€</span></span>
-          </p>
-        </div>
-
-        <div class="overview__next" id="overviewNext" hidden>
-          <span class="overview__next-icon" id="overviewNextIcon" aria-hidden="true">🏁</span>
-          <span class="overview__next-text">
-            <span class="overview__next-label">Als Nächstes erreichbar</span>
-            <strong id="overviewNextName"></strong>
-            <span class="overview__next-when" id="overviewNextWhen"></span>
-          </span>
-        </div>
-      </div>
-
-      <div class="progress overview__progress" role="progressbar" id="overviewProgress"
-           aria-label="Gesamtfortschritt" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
-        <div class="progress__fill" id="overviewProgressFill"></div>
-      </div>
-      <div class="overview__meta">
-        <span class="overview__percent" id="overviewPercent">0&nbsp;%</span>
-        <span class="overview__missing" id="overviewMissing"></span>
+  <main>
+    <!-- ============================ KONTEXT ============================ -->
+    <section class="section context">
+      <div class="wrap">
+        <p class="section__eyebrow">Der Kontext</p>
+        <p class="context__text">
+          Der <strong>Finanzfluss Copilot</strong> ist eine deutsche Finanz-App mit über
+          <strong>300.000 Nutzer:innen</strong> für Vermögensübersicht und Budget-Tracking.
+          Ein stark nachgefragtes Community-Feature: die <strong>Visualisierung finanzieller Ziele</strong>.
+          Genau das erkundet dieser Prototyp – vom Notgroschen bis zur ETF-Anlage.
+        </p>
       </div>
     </section>
 
-    <!-- Sortierung -->
-    <div class="toolbar" id="toolbar" hidden>
-      <h2 class="toolbar__title">Deine Ziele</h2>
-      <div class="toolbar__sort">
-        <span class="toolbar__label" id="sortLabel">Sortieren</span>
-        <div class="chips" role="group" aria-labelledby="sortLabel">
-          <button class="chip" type="button" data-sort="fortschritt" aria-pressed="true">Fortschritt</button>
-          <button class="chip" type="button" data-sort="datum" aria-pressed="false">Datum</button>
-          <button class="chip" type="button" data-sort="betrag" aria-pressed="false">Betrag</button>
+    <!-- ============================ FEATURES ============================ -->
+    <section class="section features">
+      <div class="wrap">
+        <h2 class="section__title">Was die Demo kann</h2>
+        <div class="cards">
+          <article class="card">
+            <span class="card__icon" aria-hidden="true">🎯</span>
+            <h3>Ziele &amp; Hochrechnung</h3>
+            <p>Zielbetrag, Sparrate und optionales Datum – die App rechnet hoch, wann du ankommst, und zeigt eine Vorschau des nächsten Sparmonats direkt im Balken.</p>
+          </article>
+          <article class="card">
+            <span class="card__icon" aria-hidden="true">💶</span>
+            <h3>Einzahlen mit einem Tipp</h3>
+            <p>Schnellbeträge (Sparrate, +50 €, „Rest auffüllen") erhöhen den Stand sofort – inklusive Live-Vorschau „aktuell → neu".</p>
+          </article>
+          <article class="card">
+            <span class="card__icon" aria-hidden="true">📊</span>
+            <h3>Gesamtübersicht</h3>
+            <p>Summe aller Ziele, Gesamtfortschritt und das <em>als Nächstes erreichbare</em> Ziel – alles auf einen Blick oben.</p>
+          </article>
+          <article class="card">
+            <span class="card__icon" aria-hidden="true">↕️</span>
+            <h3>Sortieren &amp; Bearbeiten</h3>
+            <p>Nach Fortschritt, Datum oder Betrag. Ziele anlegen, bearbeiten, löschen – mit Rückgängig-Funktion.</p>
+          </article>
+          <article class="card">
+            <span class="card__icon" aria-hidden="true">🌙</span>
+            <h3>Hell- &amp; Dunkelmodus</h3>
+            <p>Automatisch nach Systemvorgabe, manuell umschaltbar – im dunklen Navy-Look angelehnt an Finanzfluss.</p>
+          </article>
+          <article class="card">
+            <span class="card__icon" aria-hidden="true">📱</span>
+            <h3>PWA &amp; Offline</h3>
+            <p>Installierbar wie eine native App, funktioniert offline (Service Worker), Daten liegen lokal im Browser.</p>
+          </article>
         </div>
       </div>
-    </div>
+    </section>
 
-    <!-- Ziel-Liste -->
-    <ul class="goal-list" id="goalList" aria-label="Deine Sparziele"></ul>
-
-    <!-- Leer-Zustand -->
-    <section class="empty" id="emptyState" hidden>
-      <div class="empty__art" aria-hidden="true">
-        <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="9" />
-          <circle cx="12" cy="12" r="4.5" />
-          <circle cx="12" cy="12" r="0.7" fill="currentColor" stroke="none" />
-        </svg>
+    <!-- ============================ TECH ============================ -->
+    <section class="section tech">
+      <div class="wrap">
+        <h2 class="section__title">Wie es gebaut ist</h2>
+        <p class="tech__lead">Bewusst schlank: kein Framework, kein Build-Step, kein Backend – die ausgelieferten Dateien sind genau der geschriebene Code.</p>
+        <ul class="badges">
+          <li>Vanilla JS · ES-Module</li>
+          <li>PWA · Manifest + Service Worker</li>
+          <li>localStorage statt Backend</li>
+          <li>Responsiv · mobile-first</li>
+          <li>Barrierefreiheit · Tastatur &amp; Fokus</li>
+          <li>de-DE-Formatierung (Geld/Datum)</li>
+        </ul>
+        <div class="tech__cta">
+          <a class="btn btn--lg" href="./app/">Jetzt selbst ausprobieren</a>
+        </div>
       </div>
-      <h2 class="empty__title">Noch keine Sparziele</h2>
-      <p class="empty__text">Leg dein erstes Ziel an – vom Notgroschen bis zum Traumurlaub. Du siehst sofort, wie weit du bist und wann du es erreichst.</p>
-      <button class="btn btn--primary btn--lg" id="emptyAddBtn" type="button">
-        <span aria-hidden="true">+</span> Erstes Ziel anlegen
-      </button>
     </section>
   </main>
 
-  <!-- FAB (mobil) -->
-  <button class="fab" id="fab" type="button" aria-label="Neues Ziel anlegen">
-    <span aria-hidden="true">+</span>
-  </button>
-
-  <!-- Modal: Ziel anlegen / bearbeiten -->
-  <div class="modal" id="goalModal" hidden>
-    <div class="modal__backdrop" data-close></div>
-    <div class="modal__sheet" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-      <div class="modal__handle" aria-hidden="true"></div>
-      <div class="modal__head">
-        <h2 class="modal__title" id="modalTitle">Neues Ziel</h2>
-        <button class="icon-btn modal__close" type="button" data-close aria-label="Schließen">
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
-        </button>
+  <!-- ============================ FOOTER ============================ -->
+  <footer class="footer">
+    <div class="wrap footer__inner">
+      <div>
+        <!-- TODO: „Dein Name" ersetzen -->
+        <p class="footer__by">Gebaut von <strong>Dein Name</strong></p>
+        <p class="footer__note">Prototyp / Demo – keine echte Finanzberatung.</p>
       </div>
-
-      <form class="form" id="goalForm" novalidate>
-        <input type="hidden" name="id" id="fieldId" />
-
-        <div class="field">
-          <label class="field__label" for="fieldName">Name</label>
-          <input class="input" type="text" id="fieldName" name="name" maxlength="40"
-                 placeholder="z. B. Notgroschen" autocomplete="off" required />
-          <p class="field__error" data-error-for="name"></p>
-        </div>
-
-        <div class="field">
-          <span class="field__label" id="iconLabel">Symbol</span>
-          <div class="icon-picker" id="iconPicker" role="radiogroup" aria-labelledby="iconLabel"></div>
-        </div>
-
-        <div class="field-row">
-          <div class="field">
-            <label class="field__label" for="fieldTarget">Zielbetrag</label>
-            <div class="input-affix">
-              <input class="input" type="number" id="fieldTarget" name="target" inputmode="decimal"
-                     min="0" step="0.01" placeholder="5000" required />
-              <span class="input-affix__suffix" aria-hidden="true">€</span>
-            </div>
-            <p class="field__error" data-error-for="target"></p>
-          </div>
-          <div class="field">
-            <label class="field__label" for="fieldCurrent">Aktuell</label>
-            <div class="input-affix">
-              <input class="input" type="number" id="fieldCurrent" name="current" inputmode="decimal"
-                     min="0" step="0.01" placeholder="0" />
-              <span class="input-affix__suffix" aria-hidden="true">€</span>
-            </div>
-            <p class="field__error" data-error-for="current"></p>
-          </div>
-        </div>
-
-        <div class="field-row">
-          <div class="field">
-            <label class="field__label" for="fieldRate">Sparrate / Monat</label>
-            <div class="input-affix">
-              <input class="input" type="number" id="fieldRate" name="rate" inputmode="decimal"
-                     min="0" step="0.01" placeholder="200" />
-              <span class="input-affix__suffix" aria-hidden="true">€</span>
-            </div>
-            <p class="field__error" data-error-for="rate"></p>
-          </div>
-          <div class="field">
-            <label class="field__label" for="fieldDue">Zieldatum <span class="field__opt">(optional)</span></label>
-            <input class="input" type="date" id="fieldDue" name="dueDate" />
-          </div>
-        </div>
-
-        <div class="form__actions">
-          <button class="btn btn--ghost" type="button" data-close>Abbrechen</button>
-          <button class="btn btn--primary" type="submit" id="saveBtn">Speichern</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- Lösch-Bestätigung -->
-  <div class="modal modal--confirm" id="confirmModal" hidden>
-    <div class="modal__backdrop" data-confirm-close></div>
-    <div class="modal__sheet modal__sheet--sm" role="alertdialog" aria-modal="true" aria-labelledby="confirmTitle" aria-describedby="confirmText">
-      <h2 class="modal__title" id="confirmTitle">Ziel löschen?</h2>
-      <p class="confirm__text" id="confirmText">Möchtest du dieses Ziel wirklich löschen?</p>
-      <div class="form__actions">
-        <button class="btn btn--ghost" type="button" data-confirm-close>Abbrechen</button>
-        <button class="btn btn--danger" type="button" id="confirmDeleteBtn">Löschen</button>
+      <div class="footer__links">
+        <!-- TODO: DEIN-GITHUB-NAME ersetzen -->
+        <a href="https://github.com/DEIN-GITHUB-NAME/sparziele" target="_blank" rel="noopener">GitHub</a>
+        <!-- TODO: LinkedIn-URL ersetzen -->
+        <a href="https://www.linkedin.com/in/DEIN-LINKEDIN" target="_blank" rel="noopener">LinkedIn</a>
+        <a href="mailto:dani.manri@gmx.de">E-Mail</a>
       </div>
     </div>
-  </div>
-
-  <!-- Einzahlung -->
-  <div class="modal modal--confirm" id="depositModal" hidden>
-    <div class="modal__backdrop" data-deposit-close></div>
-    <div class="modal__sheet modal__sheet--sm" role="dialog" aria-modal="true" aria-labelledby="depositTitle">
-      <div class="modal__head">
-        <h2 class="modal__title" id="depositTitle">Einzahlung</h2>
-        <button class="icon-btn modal__close" type="button" data-deposit-close aria-label="Schließen">
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
-        </button>
-      </div>
-      <p class="deposit__status" id="depositStatus"></p>
-
-      <form id="depositForm" novalidate>
-        <div class="field">
-          <label class="field__label" for="depositAmount">Betrag</label>
-          <div class="input-affix">
-            <input class="input" type="number" id="depositAmount" inputmode="decimal" min="0" step="0.01" placeholder="0" />
-            <span class="input-affix__suffix" aria-hidden="true">€</span>
-          </div>
-          <p class="field__error" id="depositError"></p>
-        </div>
-        <div class="chips deposit__chips" id="depositChips" role="group" aria-label="Schnellbetrag"></div>
-        <div class="form__actions">
-          <button class="btn btn--ghost" type="button" data-deposit-close>Abbrechen</button>
-          <button class="btn btn--primary" type="submit" id="depositSubmit">Einzahlen</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- Toast -->
-  <div class="toast" id="toast" role="status" aria-live="polite" hidden>
-    <span class="toast__text" id="toastText"></span>
-    <button class="toast__action" id="toastAction" type="button" hidden>Rückgängig</button>
-  </div>
-
-  <script type="module" src="./js/app.js"></script>
+  </footer>
 </body>
 </html>
