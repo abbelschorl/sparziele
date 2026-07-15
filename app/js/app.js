@@ -1,8 +1,13 @@
 // app.js – State, Rendering, Events, Modal-Steuerung, Service-Worker-Registrierung
-import { loadState, saveState, makeId } from './storage.js';
-import { computeGoal, computeOverview, sortGoals, formatEuro, toInputDate } from './calc.js';
+import { loadState, saveState, makeId, seedGoals } from './storage.js';
+import { computeGoal, computeOverview, sortGoals, formatEuro, toInputDate, computeWhatIf } from './calc.js';
 
 const ICONS = ['🎯', '🛟', '🏖️', '📈', '🚗', '🏠', '✈️', '🎓', '🎁', '💍', '📱', '💻', '🛋️', '🐣'];
+
+const COLORS = [
+  ['#2563eb', 'Blau'], ['#0284c7', 'Himmelblau'], ['#0d9488', 'Türkis'], ['#16a34a', 'Grün'],
+  ['#7c3aed', 'Violett'], ['#db2777', 'Pink'], ['#ea580c', 'Orange'], ['#d97706', 'Gold'],
+];
 
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -11,6 +16,8 @@ const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)
 --------------------------------------------------------------- */
 let state = loadState();
 let pickedIcon = ICONS[0];
+let pickedColor = COLORS[0][0];
+const lastShown = new Map(); // zuletzt angezeigte Zahlen, damit Count-up vom alten Wert startet
 let pendingDeleteId = null;
 let undoBuffer = null;    // { goal, index }
 let undoTimer = null;
@@ -42,6 +49,7 @@ const el = {
   fab: $('#fab'),
   addHeaderBtn: $('#addGoalHeaderBtn'),
   emptyAddBtn: $('#emptyAddBtn'),
+  emptyDemoBtn: $('#emptyDemoBtn'),
 
   modal: $('#goalModal'),
   modalTitle: $('#modalTitle'),
@@ -53,6 +61,7 @@ const el = {
   fieldRate: $('#fieldRate'),
   fieldDue: $('#fieldDue'),
   iconPicker: $('#iconPicker'),
+  colorPicker: $('#colorPicker'),
   saveBtn: $('#saveBtn'),
 
   confirmModal: $('#confirmModal'),
@@ -107,9 +116,9 @@ function render() {
 
 function renderOverview() {
   const o = computeOverview(state.goals);
-  el.overviewSaved.textContent = formatEuro(o.totalSaved);
+  countUp(el.overviewSaved, 'overview:saved', o.totalSaved, formatEuro);
   el.overviewTarget.textContent = formatEuro(o.totalTarget);
-  el.overviewPercent.textContent = `${o.percentRounded} %`;
+  countUp(el.overviewPercent, 'overview:pct', o.percentRounded, (v) => `${Math.round(v)} %`);
   el.overviewGoalCount.textContent = `${o.count} ${o.count === 1 ? 'Ziel' : 'Ziele'}`;
   el.overviewMissing.textContent = o.missing > 0
     ? `noch ${formatEuro(o.missing)}`
@@ -139,12 +148,22 @@ function renderList() {
   const computed = state.goals.map((g) => computeGoal(g));
   const sorted = sortGoals(computed, state.sort);
 
-  el.goalList.innerHTML = '';
-  sorted.forEach((g, i) => {
-    el.goalList.appendChild(buildCard(g, i));
-  });
+  // Erreichte Ziele wandern in einen eigenen Bereich unter den aktiven
+  const active = sorted.filter((g) => !g.isDone);
+  const done = sorted.filter((g) => g.isDone);
 
-  // Balken nach dem Einfügen animieren (nächster Frame)
+  el.goalList.innerHTML = '';
+  let i = 0;
+  active.forEach((g) => el.goalList.appendChild(buildCard(g, i++)));
+  if (done.length > 0) {
+    const divider = document.createElement('li');
+    divider.className = 'goal-list__divider';
+    divider.textContent = 'Erreicht 🎉';
+    el.goalList.appendChild(divider);
+    done.forEach((g) => el.goalList.appendChild(buildCard(g, i++)));
+  }
+
+  // Balken & Prozente nach dem Einfügen animieren (nächster Frame)
   requestAnimationFrame(() => {
     el.goalList.querySelectorAll('.goal').forEach((card) => {
       const fill = $('.progress__fill', card);
@@ -155,6 +174,8 @@ function renderList() {
         ghost.style.width = `${card.dataset.nextPercent}%`;
         if (tick) tick.style.left = `${card.dataset.percent}%`;
       }
+      const pct = $('.goal__pct', card);
+      if (pct) countUp(pct, `goal:${card.dataset.id}`, Number(card.dataset.percentRounded), (v) => `${Math.round(v)} %`);
     });
   });
 }
@@ -165,6 +186,8 @@ function buildCard(g, index) {
   li.dataset.id = g.id;
   li.dataset.percent = g.percent.toFixed(2);
   li.dataset.nextPercent = g.nextPercent.toFixed(2);
+  li.dataset.percentRounded = String(g.percentRounded);
+  if (g.color) li.style.setProperty('--goal-color', g.color);
   if (!prefersReducedMotion) li.style.animationDelay = `${Math.min(index * 50, 300)}ms`;
 
   const ghostHtml = g.hasGhost
@@ -178,9 +201,36 @@ function buildCard(g, index) {
        </p>`
     : '';
 
-  const dueBadge = g.dueStatus
-    ? `<span class="badge badge--${g.dueStatus.type === 'warn' ? 'warn' : 'ok'}">${escapeHtml(g.dueStatus.text)}</span>`
-    : '';
+  // Zieldatum: Ampel-Badge + benötigte Sparrate
+  let dueHtml = '';
+  if (g.due) {
+    const badge = `<span class="badge badge--${g.due.status}"><span class="badge__dot" aria-hidden="true"></span>${escapeHtml(g.due.text)}</span>`;
+    let required = '';
+    if (!g.isDone && g.missing > 0 && g.due.requiredRate > 0) {
+      required = g.rate >= g.due.requiredRate
+        ? `<p class="goal__required">Nötig wären <b>${escapeHtml(formatEuro(g.due.requiredRate))}</b>/Monat – deine Rate reicht.</p>`
+        : `<p class="goal__required">Dafür müsstest du <b>${escapeHtml(formatEuro(g.due.requiredRate))}</b>/Monat sparen.</p>`;
+    }
+    dueHtml = `<div class="goal__due">${badge}</div>${required}`;
+  }
+
+  // „Was wäre wenn?“ – Sparrate testweise erhöhen
+  let whatIfHtml = '';
+  if (!g.isDone && g.missing > 0) {
+    const step = 10;
+    const max = Math.ceil(Math.max(g.rate * 3, g.rate + 500) / step) * step;
+    const start = Math.max(step, Math.round((g.rate || 50) / step) * step);
+    const wi = computeWhatIf(g, start);
+    whatIfHtml = `
+      <details class="goal__whatif">
+        <summary>Was wäre wenn?</summary>
+        <div class="whatif__body">
+          <input type="range" class="whatif__slider" min="${step}" max="${max}" step="${step}" value="${start}"
+                 aria-label="Sparrate für „${escapeHtml(g.name)}“ simulieren" />
+          <p class="whatif__result">${wi ? whatIfMarkup(wi, g) : ''}</p>
+        </div>
+      </details>`;
+  }
 
   const depositBtn = g.isDone
     ? ''
@@ -228,11 +278,23 @@ function buildCard(g, index) {
       </span>
       ${depositBtn}
     </div>
-    ${dueBadge ? `<div style="margin-top:8px">${dueBadge}</div>` : ''}
+    ${dueHtml}
     ${nextHint}
+    ${whatIfHtml}
   `;
 
   return li;
+}
+
+/** Ergebniszeile des Was-wäre-wenn-Sliders (inkl. „X Monate früher“). */
+function whatIfMarkup(wi, g) {
+  const monatWort = wi.months === 1 ? 'Monat' : 'Monaten';
+  let delta = '';
+  if (g.months != null && wi.months < g.months) {
+    const d = g.months - wi.months;
+    delta = ` <span class="whatif__delta">· ${d} ${d === 1 ? 'Monat' : 'Monate'} früher</span>`;
+  }
+  return `Bei <b>${escapeHtml(formatEuro(wi.rate))}</b>/Monat: erreicht in ${wi.months} ${monatWort} · ${escapeHtml(wi.when)}${delta}`;
 }
 
 function animateBar(fillEl, percent) {
@@ -246,6 +308,60 @@ function animateBar(fillEl, percent) {
   requestAnimationFrame(() => requestAnimationFrame(() => {
     fillEl.style.width = `${percent}%`;
   }));
+}
+
+/** Zahl hochzählen: startet beim zuletzt angezeigten Wert (Map-Key), erster Render ab 0. */
+function countUp(node, key, to, format, duration = 700) {
+  const from = lastShown.has(key) ? lastShown.get(key) : 0;
+  lastShown.set(key, to);
+  if (prefersReducedMotion || from === to) {
+    node.textContent = format(to);
+    return;
+  }
+  const t0 = performance.now();
+  const tick = (t) => {
+    const p = Math.min(1, (t - t0) / duration);
+    const eased = 1 - (1 - p) ** 3; // ease-out-cubic
+    if (p < 1) {
+      node.textContent = format(Math.round(from + (to - from) * eased));
+      requestAnimationFrame(tick);
+    } else {
+      node.textContent = format(to); // exakter Endwert (inkl. Cent)
+    }
+  };
+  requestAnimationFrame(tick);
+}
+
+/** Kleiner Konfetti-Regen bei erreichtem Ziel – ohne Bibliothek, via Web Animations API. */
+function burstConfetti() {
+  if (prefersReducedMotion || typeof Element.prototype.animate !== 'function') return;
+  const wrap = document.createElement('div');
+  wrap.className = 'confetti';
+  wrap.setAttribute('aria-hidden', 'true');
+
+  const count = 44;
+  for (let n = 0; n < count; n++) {
+    const p = document.createElement('i');
+    const size = 6 + Math.random() * 6;
+    p.style.left = `${44 + Math.random() * 12}%`;
+    p.style.top = '-14px';
+    p.style.width = `${size}px`;
+    p.style.height = `${size * 0.45}px`;
+    p.style.background = COLORS[n % COLORS.length][0];
+    wrap.appendChild(p);
+
+    const x = (Math.random() - 0.5) * window.innerWidth * 0.9;
+    const y = window.innerHeight * (0.55 + Math.random() * 0.45);
+    const rot = (Math.random() < 0.5 ? -1 : 1) * (360 + Math.random() * 720);
+    p.animate([
+      { transform: 'translate(0, 0) rotate(0deg)', opacity: 1 },
+      { transform: `translate(${x * 0.7}px, ${y * 0.5}px) rotate(${rot * 0.6}deg)`, opacity: 1, offset: 0.6 },
+      { transform: `translate(${x}px, ${y}px) rotate(${rot}deg)`, opacity: 0 },
+    ], { duration: 950 + Math.random() * 650, easing: 'cubic-bezier(.15,.6,.35,1)', fill: 'forwards' });
+  }
+
+  document.body.appendChild(wrap);
+  setTimeout(() => wrap.remove(), 1800);
 }
 
 /* ---------------------------------------------------------------
@@ -270,6 +386,25 @@ function buildIconPicker() {
   });
 }
 
+function buildColorPicker() {
+  el.colorPicker.innerHTML = '';
+  COLORS.forEach(([color, name]) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'color-opt';
+    btn.style.background = color;
+    btn.setAttribute('role', 'radio');
+    btn.setAttribute('aria-label', `Farbe ${name}`);
+    btn.setAttribute('aria-checked', String(color === pickedColor));
+    btn.addEventListener('click', () => {
+      pickedColor = color;
+      el.colorPicker.querySelectorAll('.color-opt').forEach((b) =>
+        b.setAttribute('aria-checked', String(b === btn)));
+    });
+    el.colorPicker.appendChild(btn);
+  });
+}
+
 function openModal(goal = null) {
   lastFocused = document.activeElement;
   clearErrors();
@@ -285,14 +420,17 @@ function openModal(goal = null) {
     el.fieldRate.value = goal.rate;
     el.fieldDue.value = toInputDate(goal.dueDate);
     pickedIcon = goal.icon || ICONS[0];
+    pickedColor = goal.color || COLORS[0][0];
   } else {
     el.modalTitle.textContent = 'Neues Ziel';
     el.saveBtn.textContent = 'Speichern';
     el.fieldId.value = '';
     pickedIcon = ICONS[0];
+    pickedColor = COLORS[0][0];
   }
 
   buildIconPicker();
+  buildColorPicker();
   el.modal.hidden = false;
   document.body.style.overflow = 'hidden';
   setTimeout(() => el.fieldName.focus(), 50);
@@ -359,13 +497,18 @@ function submitForm(e) {
   const data = readForm();
   if (!validate(data)) return;
 
+  let reached = false;
   if (data.id) {
     const g = state.goals.find((x) => x.id === data.id);
-    if (g) Object.assign(g, { name: data.name, icon: pickedIcon, target: data.target, current: data.current, rate: data.rate, dueDate: data.dueDate });
+    if (g) {
+      const wasDone = g.target > 0 && g.current >= g.target;
+      Object.assign(g, { name: data.name, icon: pickedIcon, color: pickedColor, target: data.target, current: data.current, rate: data.rate, dueDate: data.dueDate });
+      reached = !wasDone && g.current >= g.target;
+    }
     toast('Ziel aktualisiert');
   } else {
     state.goals.push({
-      id: makeId(), name: data.name, icon: pickedIcon,
+      id: makeId(), name: data.name, icon: pickedIcon, color: pickedColor,
       target: data.target, current: data.current, rate: data.rate,
       dueDate: data.dueDate, createdAt: Date.now(),
     });
@@ -374,6 +517,7 @@ function submitForm(e) {
   persist();
   closeModal();
   render();
+  if (reached) burstConfetti();
 }
 
 /* ---------------------------------------------------------------
@@ -539,6 +683,7 @@ function submitDeposit(e) {
   closeDeposit();
   render();
   toast(reached ? `🎉 Ziel „${g.name}“ erreicht!` : `${formatEuro(amount)} eingezahlt`);
+  if (reached) burstConfetti();
 }
 
 /* ---------------------------------------------------------------
@@ -556,6 +701,12 @@ function bind() {
   el.fab.addEventListener('click', () => openModal());
   el.addHeaderBtn.addEventListener('click', () => openModal());
   el.emptyAddBtn.addEventListener('click', () => openModal());
+  el.emptyDemoBtn.addEventListener('click', () => {
+    state.goals = seedGoals();
+    persist();
+    render();
+    toast('Demo-Ziele geladen');
+  });
 
   el.form.addEventListener('submit', submitForm);
 
@@ -581,6 +732,18 @@ function bind() {
     } else if (e.target.closest('[data-deposit]')) {
       openDeposit(id);
     }
+  });
+
+  // Was-wäre-wenn-Slider (Delegation): Hochrechnung live aktualisieren
+  el.goalList.addEventListener('input', (e) => {
+    const slider = e.target.closest('.whatif__slider');
+    if (!slider) return;
+    const card = slider.closest('.goal');
+    const goal = state.goals.find((x) => x.id === card?.dataset.id);
+    const result = card?.querySelector('.whatif__result');
+    if (!goal || !result) return;
+    const wi = computeWhatIf(goal, Number(slider.value));
+    result.innerHTML = wi ? whatIfMarkup(wi, computeGoal(goal)) : '';
   });
 
   // Modal schließen

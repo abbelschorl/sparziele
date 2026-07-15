@@ -23,6 +23,8 @@
   --muted-2:#9aa6c4;
 
   /* Akzente */
+  --good:   #15803d;
+  --good-tint: #dcfce7;
   --warn:   #b45309;
   --warn-tint: #fef3c7;
   --danger: #dc2626;
@@ -70,6 +72,8 @@
   --muted:  #8593b4;
   --muted-2:#5e6c8c;
 
+  --good:   #4ade80;
+  --good-tint: rgba(74, 222, 128, .16);
   --warn:   #fbbf24;
   --warn-tint: rgba(251, 191, 36, .16);
   --danger: #f87171;
@@ -188,7 +192,7 @@ button { font-family: inherit; }
    ============================================================ */
 .container {
   max-width: var(--maxw); margin: 0 auto;
-  padding: 20px var(--gutter) 120px;
+  padding: 20px var(--gutter) 28px; /* Abstand nach unten übernimmt der Footer (FAB-Freiraum) */
 }
 
 /* ============================================================
@@ -283,15 +287,34 @@ button { font-family: inherit; }
   animation: rise .4s var(--ease) both;
 }
 .goal:hover { box-shadow: var(--shadow-md); border-color: var(--line-2); }
-.goal.is-done { border-color: color-mix(in srgb, var(--blue) 45%, var(--line)); }
+.goal.is-done { border-color: color-mix(in srgb, var(--goal-accent) 45%, var(--line)); }
+
+/* Per-Ziel-Akzent: app.js setzt --goal-color inline, alle Varianten werden abgeleitet.
+   Ohne gesetzte Farbe fällt alles auf das Marken-Blau zurück. */
+.goal {
+  --gc: var(--goal-color, #2563eb);
+  --goal-accent: var(--gc);
+  --goal-deep:   color-mix(in srgb, var(--gc) 85%, black);
+  --goal-bright: color-mix(in srgb, var(--gc) 78%, white);
+  --goal-tint:   color-mix(in srgb, var(--gc) 10%, var(--surface));
+  --goal-ghost:  color-mix(in srgb, var(--gc) 45%, var(--surface));
+  --goal-text:   color-mix(in srgb, var(--gc) 85%, black);
+}
+:root[data-theme="dark"] .goal {
+  --goal-accent: color-mix(in srgb, var(--gc) 75%, white);
+  --goal-bright: color-mix(in srgb, var(--gc) 62%, white);
+  --goal-tint:   color-mix(in srgb, var(--goal-accent) 15%, var(--surface));
+  --goal-ghost:  color-mix(in srgb, var(--goal-accent) 42%, var(--surface));
+  --goal-text:   color-mix(in srgb, var(--gc) 42%, white);
+}
 
 .goal__top { display: flex; align-items: flex-start; gap: 12px; }
 .goal__icon {
   flex-shrink: 0; width: 46px; height: 46px; border-radius: 13px;
   display: grid; place-items: center; font-size: 1.4rem;
-  background: var(--blue-tint);
+  background: var(--goal-tint);
 }
-.goal.is-done .goal__icon { background: var(--blue); }
+.goal.is-done .goal__icon { background: var(--goal-accent); }
 .goal__head { flex: 1; min-width: 0; }
 .goal__name {
   font-size: 1.08rem; font-weight: 700; color: var(--ink);
@@ -307,10 +330,11 @@ button { font-family: inherit; }
 .goal__current { font-size: 1.4rem; font-weight: 700; color: var(--ink); }
 .goal__pct {
   font-family: var(--font-money); font-weight: 700; font-size: 1rem;
-  color: var(--accent-text);
-  background: var(--blue-tint); padding: 3px 10px; border-radius: var(--r-full);
+  color: var(--goal-text);
+  background: var(--goal-tint); padding: 3px 10px; border-radius: var(--r-full);
 }
-.goal.is-done .goal__pct { background: var(--blue); color: #fff; }
+.goal.is-done .goal__pct { background: var(--goal-accent); color: #fff; }
+:root[data-theme="dark"] .goal.is-done .goal__pct { color: #0d1830; }
 
 /* ---- Fortschrittsbalken (mit Vorschau-Segment) ---- */
 .progress {
@@ -337,11 +361,16 @@ button { font-family: inherit; }
 }
 .progress.has-ghost .progress__tick { opacity: .85; }
 
+/* In Karten folgt der Balken der Ziel-Farbe (Übersicht bleibt Marken-Blau) */
+.goal .progress { background: var(--goal-tint); }
+.goal .progress__ghost { background: var(--goal-ghost); }
+.goal .progress__fill { background: linear-gradient(90deg, var(--goal-bright), var(--goal-accent)); }
+
 .goal__foot {
   margin-top: 12px; display: flex; align-items: center; gap: 10px;
   font-size: .88rem; color: var(--ink-2); flex-wrap: wrap;
 }
-.goal__foot-icon { color: var(--blue); display: inline-grid; place-items: center; flex-shrink: 0; }
+.goal__foot-icon { color: var(--goal-accent); display: inline-grid; place-items: center; flex-shrink: 0; }
 .goal__projection { flex: 1; min-width: 0; }
 .goal__projection strong { font-weight: 600; color: var(--ink); }
 .goal__target { color: var(--muted); }
@@ -350,7 +379,7 @@ button { font-family: inherit; }
   font-size: .8rem; color: var(--muted); margin-top: 8px;
   display: flex; align-items: center; gap: 6px;
 }
-.goal__next-hint b { font-family: var(--font-money); color: var(--accent-text); font-weight: 600; }
+.goal__next-hint b { font-family: var(--font-money); color: var(--goal-text); font-weight: 600; }
 
 .badge {
   display: inline-flex; align-items: center; gap: 5px;
@@ -358,17 +387,58 @@ button { font-family: inherit; }
 }
 .badge--warn { background: var(--warn-tint); color: var(--warn); }
 .badge--ok { background: var(--blue-tint); color: var(--accent-text); }
+/* Ampel für das Zieldatum */
+.badge--good { background: var(--good-tint); color: var(--good); }
+.badge--late { background: var(--danger-tint); color: var(--danger); }
+.badge__dot { width: 7px; height: 7px; border-radius: var(--r-full); background: currentColor; flex-shrink: 0; }
+
+.goal__due { margin-top: 10px; }
+.goal__required { margin: 7px 0 0; font-size: .82rem; color: var(--muted); }
+.goal__required b { font-family: var(--font-money); font-weight: 600; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+
+/* ---- „Was wäre wenn?“ – Sparraten-Simulation ---- */
+.goal__whatif {
+  margin-top: 12px; border-top: 1px dashed var(--line-2); padding-top: 10px;
+}
+.goal__whatif summary {
+  cursor: pointer; list-style: none; user-select: none;
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: .82rem; font-weight: 600; color: var(--goal-text);
+}
+.goal__whatif summary::-webkit-details-marker { display: none; }
+.goal__whatif summary::before {
+  content: ''; width: 7px; height: 7px; flex-shrink: 0;
+  border-right: 2px solid currentColor; border-bottom: 2px solid currentColor;
+  transform: rotate(-45deg) translateY(-1px); transition: transform .15s var(--ease);
+}
+.goal__whatif[open] summary::before { transform: rotate(45deg); }
+.whatif__body { margin-top: 10px; }
+.whatif__slider {
+  width: 100%; margin: 0; accent-color: var(--goal-accent); cursor: pointer;
+}
+.whatif__result { margin: 8px 0 0; font-size: .85rem; color: var(--ink-2); }
+.whatif__result b { font-family: var(--font-money); font-weight: 600; color: var(--goal-text); font-variant-numeric: tabular-nums; }
+.whatif__delta { color: var(--good); font-weight: 600; }
+
+/* ---- „Erreicht“-Bereich ---- */
+.goal-list__divider {
+  grid-column: 1 / -1; list-style: none;
+  margin: 14px 2px 0; display: flex; align-items: center; gap: 12px;
+  font-size: .78rem; font-weight: 600; letter-spacing: .04em;
+  text-transform: uppercase; color: var(--muted);
+}
+.goal-list__divider::after { content: ''; flex: 1; height: 1px; background: var(--line-2); }
 
 /* „Einzahlen"-Schnellaktion */
 .goal__deposit {
   appearance: none; cursor: pointer; flex-shrink: 0;
   display: inline-flex; align-items: center; gap: 5px;
   font-weight: 600; font-size: .82rem;
-  color: var(--accent-text); background: var(--blue-tint);
+  color: var(--goal-text); background: var(--goal-tint);
   border: 0; padding: 7px 13px; border-radius: var(--r-full);
   transition: background .15s var(--ease), transform .12s var(--ease);
 }
-.goal__deposit:hover { background: color-mix(in srgb, var(--blue) 22%, transparent); }
+.goal__deposit:hover { background: color-mix(in srgb, var(--goal-accent) 22%, transparent); }
 .goal__deposit:active { transform: scale(.96); }
 
 /* Einzahlungs-Dialog */
@@ -392,6 +462,7 @@ button { font-family: inherit; }
 }
 .empty__title { font-size: 1.5rem; font-weight: 700; color: var(--ink); }
 .empty__text { max-width: 360px; color: var(--muted); margin: 4px 0 20px; }
+.empty__actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
 
 /* ============================================================
    FAB (mobil)
@@ -498,6 +569,19 @@ input[type="date"] { color-scheme: light; }
   background: var(--blue-tint); border-color: var(--blue);
 }
 
+/* Farb-Picker */
+.color-picker { display: flex; flex-wrap: wrap; gap: 10px; padding: 2px; }
+.color-opt {
+  appearance: none; cursor: pointer;
+  width: 30px; height: 30px; border-radius: var(--r-full);
+  border: 0; padding: 0;
+  transition: transform .12s var(--ease), box-shadow .15s var(--ease);
+}
+.color-opt:hover { transform: scale(1.12); }
+.color-opt[aria-checked="true"] {
+  box-shadow: 0 0 0 2px var(--surface), 0 0 0 4.5px var(--ink-2);
+}
+
 .form__actions {
   display: flex; gap: 10px; justify-content: flex-end; margin-top: 6px;
 }
@@ -525,6 +609,26 @@ input[type="date"] { color-scheme: light; }
   border-radius: var(--r-sm);
 }
 .toast__action:hover { filter: brightness(1.15); }
+
+/* ============================================================
+   Footer
+   ============================================================ */
+.app-footer {
+  max-width: var(--maxw); margin: 0 auto;
+  padding: 0 var(--gutter) max(96px, calc(env(safe-area-inset-bottom) + 90px));
+  text-align: center; font-size: .78rem; color: var(--muted-2);
+}
+
+/* ============================================================
+   Konfetti (Feier bei 100 %)
+   ============================================================ */
+.confetti {
+  position: fixed; inset: 0; z-index: 70;
+  pointer-events: none; overflow: hidden;
+}
+.confetti i {
+  position: absolute; display: block; border-radius: 2px; will-change: transform;
+}
 
 /* ============================================================
    Animationen

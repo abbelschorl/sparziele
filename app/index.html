@@ -117,11 +117,18 @@
       </div>
       <h2 class="empty__title">Noch keine Sparziele</h2>
       <p class="empty__text">Leg dein erstes Ziel an – vom Notgroschen bis zum Traumurlaub. Du siehst sofort, wie weit du bist und wann du es erreichst.</p>
-      <button class="btn btn--primary btn--lg" id="emptyAddBtn" type="button">
-        <span aria-hidden="true">+</span> Erstes Ziel anlegen
-      </button>
+      <div class="empty__actions">
+        <button class="btn btn--primary btn--lg" id="emptyAddBtn" type="button">
+          <span aria-hidden="true">+</span> Erstes Ziel anlegen
+        </button>
+        <button class="btn btn--ghost btn--lg" id="emptyDemoBtn" type="button">Demo laden</button>
+      </div>
     </section>
   </main>
+
+  <footer class="app-footer">
+    Konzept-Prototyp · unabhängiges Projekt, nicht mit Finanzfluss affiliiert · kein Anlage-Tool
+  </footer>
 
   <!-- FAB (mobil) -->
   <button class="fab" id="fab" type="button" aria-label="Neues Ziel anlegen">
@@ -153,6 +160,11 @@
         <div class="field">
           <span class="field__label" id="iconLabel">Symbol</span>
           <div class="icon-picker" id="iconPicker" role="radiogroup" aria-labelledby="iconLabel"></div>
+        </div>
+
+        <div class="field">
+          <span class="field__label" id="colorLabel">Farbe</span>
+          <div class="color-picker" id="colorPicker" role="radiogroup" aria-labelledby="colorLabel"></div>
         </div>
 
         <div class="field-row">

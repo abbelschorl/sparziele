@@ -61,26 +61,7 @@ export function computeGoal(goal, now = new Date()) {
     projectionText = 'Keine Sparrate – Zeitpunkt offen';
   }
 
-  // Vergleich mit gesetztem Zieldatum
-  let dueStatus = null; // { type: 'ok'|'warn', text }
-  if (goal.dueDate) {
-    const due = new Date(goal.dueDate);
-    if (!Number.isNaN(due.getTime())) {
-      const dueLabel = formatMonthYear(due);
-      if (isDone) {
-        dueStatus = { type: 'ok', text: `Zieldatum ${dueLabel}` };
-      } else if (projectedDate) {
-        const diff = monthsBetween(projectedDate, due); // >0: Prognose vor Zieldatum
-        if (diff >= 0) {
-          dueStatus = { type: 'ok', text: diff === 0 ? `Pünktlich zum ${dueLabel}` : `${diff} Mon. vor Ziel (${dueLabel})` };
-        } else {
-          dueStatus = { type: 'warn', text: `${Math.abs(diff)} Mon. nach Ziel (${dueLabel})` };
-        }
-      } else {
-        dueStatus = { type: 'warn', text: `Zieldatum ${dueLabel}` };
-      }
-    }
-  }
+  const due = computeDue(goal, now);
 
   return {
     ...goal,
@@ -88,8 +69,63 @@ export function computeGoal(goal, now = new Date()) {
     percent, percentRounded: Math.round(percent),
     missing, isDone,
     nextPercent, hasGhost: !isDone && rate > 0 && nextPercent > percent + 0.5,
-    months, projectedDate, projectionText, dueStatus,
+    months, projectedDate, projectionText, due,
   };
+}
+
+/**
+ * Zieldatum-Check mit Ampel: reicht die aktuelle Sparrate?
+ * Benötigte Rate = fehlender Betrag / verbleibende Monate (aufgerundet, min. 1 Monat).
+ * Ampel: grün ab 100 % der nötigen Rate, gelb ab 80 %, sonst rot.
+ * Gibt null zurück, wenn kein (gültiges) Zieldatum gesetzt ist.
+ */
+export function computeDue(goal, now = new Date()) {
+  if (!goal.dueDate) return null;
+  const due = new Date(goal.dueDate);
+  if (Number.isNaN(due.getTime())) return null;
+
+  const target = Math.max(0, Number(goal.target) || 0);
+  const current = Math.max(0, Number(goal.current) || 0);
+  const rate = Math.max(0, Number(goal.rate) || 0);
+  const missing = Math.max(0, target - current);
+  const isDone = target > 0 && current >= target;
+  const dueLabel = formatMonthYear(due);
+
+  if (isDone) {
+    return { status: 'good', text: `Zieldatum ${dueLabel}`, remainingMonths: null, requiredRate: 0, dueLabel };
+  }
+
+  // Monate von jetzt bis zum Zieldatum (auf Monatsbasis)
+  const diff = monthsBetween(new Date(now.getFullYear(), now.getMonth(), 1),
+                             new Date(due.getFullYear(), due.getMonth(), 1));
+  if (diff < 0) {
+    return { status: 'late', text: `Zieldatum überschritten (${dueLabel})`, remainingMonths: 0, requiredRate: missing, dueLabel };
+  }
+
+  const remainingMonths = Math.max(1, diff);
+  const requiredRate = Math.ceil(missing / remainingMonths);
+  const ratio = requiredRate > 0 ? rate / requiredRate : 1;
+
+  const status = ratio >= 1 ? 'good' : ratio >= 0.8 ? 'warn' : 'late';
+  const label = status === 'good' ? 'Auf Kurs' : status === 'warn' ? 'Knapp dran' : 'Zu langsam';
+  return { status, text: `${label} · Ziel ${dueLabel}`, remainingMonths, requiredRate, dueLabel };
+}
+
+/**
+ * „Was wäre wenn“: Hochrechnung für eine testweise geänderte Sparrate.
+ * Gibt null zurück, wenn Rate ≤ 0 oder das Ziel bereits erreicht ist.
+ */
+export function computeWhatIf(goal, rate, now = new Date()) {
+  const target = Math.max(0, Number(goal.target) || 0);
+  const current = Math.max(0, Number(goal.current) || 0);
+  const r = Math.max(0, Number(rate) || 0);
+  const missing = Math.max(0, target - current);
+  if (missing <= 0 || r <= 0) return null;
+
+  const months = Math.ceil(missing / r);
+  const when = formatMonthYear(addMonths(now, months));
+  const monatWort = months === 1 ? 'Monat' : 'Monaten';
+  return { rate: r, months, when, text: `Bei ${formatEuro(r)}/Monat: erreicht in ${months} ${monatWort} · ${when}` };
 }
 
 function monthsBetween(from, to) {

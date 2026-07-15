@@ -4,6 +4,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   computeGoal, computeOverview, sortGoals, formatEuro, toInputDate,
+  computeDue, computeWhatIf,
 } from '../app/js/calc.js';
 
 // Fixer Bezugszeitpunkt für deterministische Hochrechnungen: 30. Juni 2026
@@ -105,4 +106,75 @@ test('formatEuro: de-DE, ganze Beträge ohne, krumme mit zwei Nachkommastellen',
 test('toInputDate: schneidet ISO-Zeit ab', () => {
   assert.equal(toInputDate('2027-03-01T00:00:00.000Z'), '2027-03-01');
   assert.equal(toInputDate(null), '');
+});
+
+/* ---- Zieldatum-Ampel (computeDue) ---- */
+
+test('computeDue: benötigte Rate = fehlender Betrag / verbleibende Monate (aufgerundet)', () => {
+  // Kroatien-Szenario: 1.100 € fehlen, 6 Monate -> 184 €/Monat nötig
+  const d = computeDue({ target: 1500, current: 400, rate: 150, dueDate: '2026-12-30' }, NOW);
+  assert.equal(d.remainingMonths, 6);
+  assert.equal(d.requiredRate, 184);
+  assert.equal(d.status, 'warn');          // 150/184 ≈ 82 % -> gelb („Knapp dran“)
+  assert.match(d.text, /Knapp dran/);
+});
+
+test('computeDue: grün, wenn die aktuelle Rate reicht', () => {
+  const d = computeDue({ target: 1500, current: 400, rate: 200, dueDate: '2026-12-30' }, NOW);
+  assert.equal(d.status, 'good');
+  assert.match(d.text, /Auf Kurs/);
+});
+
+test('computeDue: rot bei deutlich zu niedriger oder fehlender Rate', () => {
+  assert.equal(computeDue({ target: 1500, current: 400, rate: 50, dueDate: '2026-12-30' }, NOW).status, 'late');
+  assert.equal(computeDue({ target: 1500, current: 400, rate: 0, dueDate: '2026-12-30' }, NOW).status, 'late');
+});
+
+test('computeDue: überschrittenes Zieldatum', () => {
+  const d = computeDue({ target: 1500, current: 400, rate: 150, dueDate: '2026-01-15' }, NOW);
+  assert.equal(d.status, 'late');
+  assert.match(d.text, /überschritten/i);
+});
+
+test('computeDue: Zieldatum im laufenden Monat -> mindestens 1 Monat Rechenbasis', () => {
+  const d = computeDue({ target: 1000, current: 400, rate: 600, dueDate: '2026-06-30' }, NOW);
+  assert.equal(d.remainingMonths, 1);
+  assert.equal(d.requiredRate, 600);
+  assert.equal(d.status, 'good');
+});
+
+test('computeDue: erreichtes Ziel ist grün, ohne/ungültiges Datum null', () => {
+  const d = computeDue({ target: 1000, current: 1000, rate: 0, dueDate: '2026-12-01' }, NOW);
+  assert.equal(d.status, 'good');
+  assert.match(d.text, /Zieldatum/);
+  assert.equal(computeDue({ target: 1000, current: 0, rate: 10 }, NOW), null);
+  assert.equal(computeDue({ target: 1000, current: 0, rate: 10, dueDate: 'quatsch' }, NOW), null);
+});
+
+test('computeGoal: liefert due-Objekt mit, wenn Zieldatum gesetzt', () => {
+  const g = computeGoal({ target: 1500, current: 400, rate: 150, dueDate: '2026-12-30' }, NOW);
+  assert.equal(g.due.status, 'warn');
+  assert.equal(computeGoal({ target: 1500, current: 400, rate: 150 }, NOW).due, null);
+});
+
+/* ---- „Was wäre wenn?“ (computeWhatIf) ---- */
+
+test('computeWhatIf: Hochrechnung für Test-Sparrate', () => {
+  const wi = computeWhatIf({ target: 1000, current: 500 }, 100, NOW);
+  assert.equal(wi.months, 5);
+  assert.equal(wi.rate, 100);
+  assert.equal(wi.when, 'November 2026');
+  assert.match(norm(wi.text), /Bei 100 €\/Monat/);
+  assert.match(wi.text, /5 Monaten/);
+});
+
+test('computeWhatIf: Singular bei einem Monat', () => {
+  const wi = computeWhatIf({ target: 1000, current: 950 }, 100, NOW);
+  assert.equal(wi.months, 1);
+  assert.match(wi.text, /in 1 Monat ·/);
+});
+
+test('computeWhatIf: null bei Rate 0 oder bereits erreichtem Ziel', () => {
+  assert.equal(computeWhatIf({ target: 1000, current: 500 }, 0, NOW), null);
+  assert.equal(computeWhatIf({ target: 1000, current: 1000 }, 100, NOW), null);
 });
