@@ -8,10 +8,9 @@ ein Feature-Prototyp inspiriert von der **Finanzfluss-Copilot**-App.
 Lege Ziele wie *Notgroschen*, *Urlaub* oder *ETF-Anlage* an und sieh auf einen Blick,
 wie weit du bist und **wann** du dein Ziel erreichst.
 
-**🔗 Live:** Landingpage `https://DEIN-GITHUB-NAME.github.io/sparziele/` · Demo `…/sparziele/app/`
+**🔗 Live:** Landingpage <https://abbelschorl.github.io/sparziele/> · Demo <https://abbelschorl.github.io/sparziele/app/>
 
-<!-- Tests-Badge: DEIN-GITHUB-NAME ersetzen, sobald das Repo auf GitHub liegt -->
-![Tests](https://github.com/DEIN-GITHUB-NAME/sparziele/actions/workflows/test.yml/badge.svg)
+![Tests](https://github.com/abbelschorl/sparziele/actions/workflows/test.yml/badge.svg)
 ![Vanilla JS](https://img.shields.io/badge/Vanilla_JS-kein_Build-2563eb)
 ![PWA](https://img.shields.io/badge/PWA-offline--f%C3%A4hig-2563eb)
 ![Daten](https://img.shields.io/badge/Daten-localStorage-2563eb)
@@ -96,7 +95,7 @@ git add -A
 git commit -m "Sparziele PWA"
 
 # 2) Leeres Repo auf github.com anlegen (z. B. „sparziele"), dann verbinden:
-git remote add origin https://github.com/<DEIN-USERNAME>/sparziele.git
+git remote add origin https://github.com/abbelschorl/sparziele.git
 git push -u origin main
 ```
 
@@ -104,8 +103,8 @@ Anschließend einmalig in GitHub: **Settings → Pages → Build and deployment 
 Der mitgelieferte Workflow (`.github/workflows/deploy.yml`) deployt dann bei jedem Push auf `main` automatisch.
 
 **Live-Links** danach:
-- Landingpage (Portfolio): `https://<DEIN-USERNAME>.github.io/sparziele/`
-- App direkt: `https://<DEIN-USERNAME>.github.io/sparziele/app/`
+- Landingpage (Portfolio): <https://abbelschorl.github.io/sparziele/>
+- App direkt: <https://abbelschorl.github.io/sparziele/app/>
 
 > Push braucht statt Passwort einen **Personal Access Token** (Scope `repo`) – oder nutze GitHub Desktop.
 
