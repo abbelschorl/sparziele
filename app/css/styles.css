@@ -20,7 +20,7 @@
   --ink:    #191a2e;
   --ink-2:  #40435c;
   --muted:  #5d6070;
-  --muted-2:#9aa0b8;
+  --muted-2:#646a86; /* WCAG-AA-fest auch auf --bg und --surface-2 */
 
   /* Akzente */
   --good:   #15803d;
@@ -70,7 +70,7 @@
   --ink:    #eceef8;
   --ink-2:  #c2c6dd;
   --muted:  #9ba0b8;
-  --muted-2:#5f647f;
+  --muted-2:#8a90ad; /* WCAG-AA-fest auf allen dunklen Flächen */
 
   --good:   #4ade80;
   --good-tint: rgba(74, 222, 128, .16);
@@ -520,7 +520,7 @@ button { font-family: inherit; }
 .modal__close { margin-right: -8px; }
 
 .modal--confirm .modal__sheet--sm {
-  align-self: center; border-radius: var(--r-lg);
+  align-self: center; justify-self: center; border-radius: var(--r-lg);
   max-width: 400px; margin: auto var(--gutter);
   padding: 22px 22px 18px; animation: pop .25s var(--ease) both;
 }
@@ -662,8 +662,8 @@ input[type="date"] { color-scheme: light; }
   .goal:hover { transform: translateY(-3px); }
 
   .modal__sheet {
-    align-self: center; border-radius: var(--r-lg);
-    margin: auto var(--gutter); padding: 24px 26px;
+    align-self: center; justify-self: center; border-radius: var(--r-lg);
+    margin: auto; padding: 24px 26px;
     animation: pop .26s var(--ease) both;
   }
   .modal__handle { display: none; }

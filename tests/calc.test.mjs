@@ -171,7 +171,7 @@ test('computeWhatIf: Hochrechnung für Test-Sparrate', () => {
 test('computeWhatIf: Singular bei einem Monat', () => {
   const wi = computeWhatIf({ target: 1000, current: 950 }, 100, NOW);
   assert.equal(wi.months, 1);
-  assert.match(wi.text, /in 1 Monat ·/);
+  assert.match(norm(wi.text), /in 1 Monat ·/);
 });
 
 test('computeWhatIf: null bei Rate 0 oder bereits erreichtem Ziel', () => {

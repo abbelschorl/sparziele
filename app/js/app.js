@@ -243,7 +243,7 @@ function buildCard(g, index) {
       <div class="goal__icon" aria-hidden="true">${escapeHtml(g.icon)}</div>
       <div class="goal__head">
         <div class="goal__name">${escapeHtml(g.name)}</div>
-        <div class="goal__sub">${g.isDone ? 'Ziel erreicht' : `Sparrate ${escapeHtml(formatEuro(g.rate))} / Monat`}</div>
+        <div class="goal__sub">${g.isDone ? 'Ziel erreicht' : `Sparrate ${escapeHtml(formatEuro(g.rate))}/Monat`}</div>
       </div>
       <div class="goal__actions">
         <button class="icon-btn" type="button" data-edit aria-label="„${escapeHtml(g.name)}“ bearbeiten">
@@ -274,7 +274,7 @@ function buildCard(g, index) {
       </span>
       <span class="goal__projection">
         <strong>${escapeHtml(g.projectionText)}</strong>
-        ${g.isDone ? '' : `<span class="goal__target"> · noch ${escapeHtml(formatEuro(g.missing))} von <b>${escapeHtml(formatEuro(g.target))}</b></span>`}
+        ${g.isDone ? '' : `<span class="goal__target"> · noch ${escapeHtml(formatEuro(g.missing))} von <b>${escapeHtml(formatEuro(g.target))}</b></span>`}
       </span>
       ${depositBtn}
     </div>
@@ -294,7 +294,7 @@ function whatIfMarkup(wi, g) {
     const d = g.months - wi.months;
     delta = ` <span class="whatif__delta">· ${d} ${d === 1 ? 'Monat' : 'Monate'} früher</span>`;
   }
-  return `Bei <b>${escapeHtml(formatEuro(wi.rate))}</b>/Monat: erreicht in ${wi.months} ${monatWort} · ${escapeHtml(wi.when)}${delta}`;
+  return `Bei <b>${escapeHtml(formatEuro(wi.rate))}</b>/Monat: erreicht in ${wi.months} ${monatWort} · ${escapeHtml(wi.when)}${delta}`;
 }
 
 function animateBar(fillEl, percent) {

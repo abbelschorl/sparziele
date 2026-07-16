@@ -20,29 +20,28 @@ wie weit du bist und **wann** du dein Ziel erreichst.
 
 ## ✨ Features
 
-- **Ziele anlegen** mit Name, Symbol, Zielbetrag, aktuellem Betrag, monatlicher Sparrate und optionalem Zieldatum
+- **Ziele anlegen** mit Name, Symbol, **eigener Akzentfarbe**, Zielbetrag, aktuellem Betrag, monatlicher Sparrate und optionalem Zieldatum
 - **Pro Ziel**: animierter Fortschrittsbalken, Prozentsatz, fehlender Betrag und Hochrechnung „*Erreicht in X Monaten · Monat Jahr*"
+- **Zieldatum-Ampel**: Grün/Gelb/Rot zeigt, ob die aktuelle Sparrate fürs Wunschdatum reicht – inkl. benötigter Rate („Dafür müsstest du X €/Monat sparen")
+- **„Was wäre wenn?"-Slider**: Sparrate testweise erhöhen und live sehen, wie das Zieldatum nach vorn rückt
 - **Signature-Detail**: ein helleres „Ghost"-Segment im Balken zeigt, wo du nach dem **nächsten Sparmonat** stehst
 - **Gesamtübersicht**: Summe aller Ziele, Gesamtfortschritt und das **nächste erreichbare Ziel**
 - **Einzahlen** direkt auf der Karte: Schnellbetrag-Chips (Sparrate, +50 €, +100 €, „Rest auffüllen") erhöhen den aktuellen Stand
+- **Konfetti bei 100 %** 🎉 – erreichte Ziele wandern in einen eigenen „Erreicht"-Bereich
 - **Bearbeiten & Löschen** – inkl. *Rückgängig* nach dem Löschen
 - **Sortierung** nach Fortschritt / Datum / Betrag (wird gespeichert)
 - **Hell- & Dunkelmodus** – folgt dem System, manuell umschaltbar, wird gespeichert
-- **Leer-Zustand** mit klarem Call-to-Action
+- **Leer-Zustand** mit „Erstes Ziel anlegen" und „Demo laden"
 - **Offline-fähig** dank Service Worker · installierbar als App
-- Mobile-first, responsiv, mit Fokus auf Barrierefreiheit (Tastatur, Fokusringe, `prefers-reduced-motion`)
+- Mobile-first, responsiv, mit Fokus auf Barrierefreiheit (Tastatur, Fokusringe, WCAG-AA-Kontraste, `prefers-reduced-motion`)
 
 ---
 
 ## 📸 Screenshots
 
-> _Platzhalter – eigene Screenshots einfügen (`Cmd+Shift+4`), im Ordner `docs/` ablegen und Pfade unten anpassen._
-
 | Übersicht (hell) | Dunkelmodus | Ziel anlegen |
 |---|---|---|
 | ![Übersicht](docs/screenshot-light.png) | ![Dunkelmodus](docs/screenshot-dark.png) | ![Formular](docs/screenshot-form.png) |
-
-Für ein animiertes GIF (App in Aktion) eignet sich die macOS-Bildschirmaufnahme (`Cmd+Shift+5`).
 
 ---
 

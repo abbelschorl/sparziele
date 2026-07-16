@@ -56,7 +56,8 @@ export function computeGoal(goal, now = new Date()) {
     projectedDate = addMonths(now, months);
     const when = formatMonthYear(projectedDate);
     const monatWort = months === 1 ? 'Monat' : 'Monaten';
-    projectionText = `Erreicht in ${months} ${monatWort} · ${when}`;
+    //   hält „Monaten · Juli 2027“ beim Umbruch zusammen
+    projectionText = `Erreicht in ${months} ${monatWort} · ${when}`;
   } else {
     projectionText = 'Keine Sparrate – Zeitpunkt offen';
   }
@@ -125,7 +126,7 @@ export function computeWhatIf(goal, rate, now = new Date()) {
   const months = Math.ceil(missing / r);
   const when = formatMonthYear(addMonths(now, months));
   const monatWort = months === 1 ? 'Monat' : 'Monaten';
-  return { rate: r, months, when, text: `Bei ${formatEuro(r)}/Monat: erreicht in ${months} ${monatWort} · ${when}` };
+  return { rate: r, months, when, text: `Bei ${formatEuro(r)}/Monat: erreicht in ${months} ${monatWort} · ${when}` };
 }
 
 function monthsBetween(from, to) {
