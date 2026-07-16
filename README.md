@@ -11,10 +11,10 @@ wie weit du bist und **wann** du dein Ziel erreichst.
 **🔗 Live:** Landingpage <https://abbelschorl.github.io/sparziele/> · Demo <https://abbelschorl.github.io/sparziele/app/>
 
 ![Tests](https://github.com/abbelschorl/sparziele/actions/workflows/test.yml/badge.svg)
-![Vanilla JS](https://img.shields.io/badge/Vanilla_JS-kein_Build-2563eb)
-![PWA](https://img.shields.io/badge/PWA-offline--f%C3%A4hig-2563eb)
-![Daten](https://img.shields.io/badge/Daten-localStorage-2563eb)
-![License](https://img.shields.io/badge/License-MIT-2563eb)
+![Vanilla JS](https://img.shields.io/badge/Vanilla_JS-kein_Build-4f46e5)
+![PWA](https://img.shields.io/badge/PWA-offline--f%C3%A4hig-4f46e5)
+![Daten](https://img.shields.io/badge/Daten-localStorage-4f46e5)
+![License](https://img.shields.io/badge/License-MIT-4f46e5)
 
 ---
 

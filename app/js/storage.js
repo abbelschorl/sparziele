@@ -2,14 +2,14 @@
 
 const KEY = 'sparziele.v1';
 
-const DEFAULT_COLOR = '#2563eb';
+const DEFAULT_COLOR = '#4f46e5';
 
 // dueInMonths: wird beim Seeden in ein konkretes Datum umgerechnet (Kroatien bewusst
 // knapp – bei 150 €/Monat zeigt die Ampel „Knapp dran“). „Erstes Auto“ ist bereits erreicht.
 const SEED = [
   { name: 'Notgroschen',            icon: '🛟', color: '#0d9488', target: 5000,  current: 3200, rate: 200, dueDate: null },
   { name: 'Sommerurlaub Kroatien',  icon: '🏖️', color: '#ea580c', target: 1500,  current: 400,  rate: 150, dueInMonths: 6 },
-  { name: 'ETF Einmalanlage',       icon: '📈', color: '#2563eb', target: 10000, current: 6500, rate: 300, dueDate: null },
+  { name: 'ETF Einmalanlage',       icon: '📈', color: '#4f46e5', target: 10000, current: 6500, rate: 300, dueDate: null },
   { name: 'Erstes Auto',            icon: '🚗', color: '#7c3aed', target: 8000,  current: 8000, rate: 0,   dueDate: null },
 ];
 
@@ -70,8 +70,9 @@ function normalizeGoal(g) {
     id: g.id || makeId(),
     name: String(g.name ?? '').slice(0, 60),
     icon: g.icon || '🎯',
-    // Bestehende Daten ohne Farbe (ältere App-Version) bekommen das Standard-Blau
-    color: typeof g.color === 'string' && /^#[0-9a-f]{6}$/i.test(g.color) ? g.color.toLowerCase() : DEFAULT_COLOR,
+    // Ohne/ungültige Farbe sowie das frühere Standard-Blau -> aktueller Standard (Indigo)
+    color: typeof g.color === 'string' && /^#[0-9a-f]{6}$/i.test(g.color) && g.color.toLowerCase() !== '#2563eb'
+      ? g.color.toLowerCase() : DEFAULT_COLOR,
     target: Number(g.target) || 0,
     current: Number(g.current) || 0,
     rate: Number(g.rate) || 0,

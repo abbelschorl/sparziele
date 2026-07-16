@@ -3,21 +3,21 @@
    Navy-Hero → helle Sektionen, blaue Akzente. Konsistent zur App.
    ============================================================ */
 :root {
-  --blue:        #2563eb;
-  --blue-deep:   #1d4ed8;
-  --blue-bright: #5b8dff;
+  --blue:        #4f46e5;
+  --blue-deep:   #3730a3;
+  --blue-bright: #818cf8;
 
-  --navy:   #0d1830;
-  --navy-2: #16223f;
-  --navy-line: #24345a;
+  --navy:   #0e0f1e;
+  --navy-2: #181a2f;
+  --navy-line: #2b2d49;
 
-  --bg:      #f5f7fc;
+  --bg:      #f4f5fa;
   --surface: #ffffff;
-  --ink:     #101a33;
-  --ink-2:   #36436b;
-  --muted:   #6b7896;
-  --line:    #e7ebf4;
-  --line-2:  #d7dded;
+  --ink:     #191a2e;
+  --ink-2:   #40435c;
+  --muted:   #5d6070;
+  --line:    #e4e6f0;
+  --line-2:  #d4d7e6;
 
   --font-ui:    'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --font-disp:  'Space Grotesk', 'Inter', system-ui, sans-serif;

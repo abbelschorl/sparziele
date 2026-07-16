@@ -1,26 +1,26 @@
 /* ============================================================
    Sparziele – Design-Token-System
-   Clean · Blau · Navy-Dark-Mode
+   Indigo · kühle Grautöne · viel Weißraum (Design-Sprache: Kaufkraft-Check)
    ============================================================ */
 :root {
-  /* Marke / Blau */
-  --blue:        #2563eb;
-  --blue-deep:   #1d4ed8;
-  --blue-bright: #3b82f6;
-  --blue-tint:   #e7eefe;
-  --blue-ghost:  #9cc0fb;
-  --accent-text: #1d4ed8;  /* blauer Text auf Tint-Flächen (Theme-abhängig) */
+  /* Marke / Indigo */
+  --blue:        #4f46e5;
+  --blue-deep:   #3730a3;
+  --blue-bright: #6366f1;
+  --blue-tint:   #eef2ff;
+  --blue-ghost:  #b0abf3;
+  --accent-text: #3730a3;  /* Akzent-Text auf Tint-Flächen (Theme-abhängig) */
 
   /* Flächen */
-  --bg:        #f5f7fc;
+  --bg:        #f4f5fa;
   --surface:   #ffffff;
-  --surface-2: #eef2fa;
+  --surface-2: #eef0f7;
 
   /* Text */
-  --ink:    #101a33;
-  --ink-2:  #36436b;
-  --muted:  #6b7896;
-  --muted-2:#9aa6c4;
+  --ink:    #191a2e;
+  --ink-2:  #40435c;
+  --muted:  #5d6070;
+  --muted-2:#9aa0b8;
 
   /* Akzente */
   --good:   #15803d;
@@ -31,16 +31,16 @@
   --danger-tint: #fee2e2;
 
   /* Linien / Schatten */
-  --line:   #e7ebf4;
-  --line-2: #d7dded;
-  --shadow-sm: 0 1px 2px rgba(16, 26, 51, .04), 0 1px 3px rgba(16, 26, 51, .06);
-  --shadow-md: 0 8px 20px -10px rgba(16, 26, 51, .16), 0 2px 6px -2px rgba(16, 26, 51, .08);
-  --shadow-lg: 0 24px 50px -14px rgba(16, 26, 51, .26);
+  --line:   #e4e6f0;
+  --line-2: #d4d7e6;
+  --shadow-sm: 0 1px 2px rgba(23, 23, 43, .05), 0 6px 20px -6px rgba(23, 23, 43, .08);
+  --shadow-md: 0 8px 30px -6px rgba(23, 23, 43, .18);
+  --shadow-lg: 0 24px 50px -14px rgba(23, 23, 43, .28);
 
   /* Radius */
-  --r-sm: 10px;
-  --r-md: 14px;
-  --r-lg: 20px;
+  --r-sm: 9px;
+  --r-md: 12px;
+  --r-lg: 14px;
   --r-full: 999px;
 
   /* Type */
@@ -54,23 +54,23 @@
   --ease: cubic-bezier(.22, .61, .36, 1);
 }
 
-/* ---- Dark Mode (Navy, angelehnt an Finanzfluss) ---- */
+/* ---- Dark Mode (tiefes Indigo-Schwarz, wie Kaufkraft-Check) ---- */
 :root[data-theme="dark"] {
-  --blue:        #5b8dff;
-  --blue-deep:   #3b6ef0;
-  --blue-bright: #6ea3ff;
-  --blue-tint:   rgba(91, 141, 255, .16);
-  --blue-ghost:  #3c5894;
-  --accent-text: #93b4ff;
+  --blue:        #818cf8;
+  --blue-deep:   #a5b4fc;
+  --blue-bright: #a5b4fc;
+  --blue-tint:   #232448;
+  --blue-ghost:  #3e4283;
+  --accent-text: #a5b4fc;
 
-  --bg:        #0d1830;
-  --surface:   #16223f;
-  --surface-2: #1e2c4c;
+  --bg:        #0e0f1e;
+  --surface:   #181a2f;
+  --surface-2: #1e2038;
 
-  --ink:    #eef2fb;
-  --ink-2:  #c3cee4;
-  --muted:  #8593b4;
-  --muted-2:#5e6c8c;
+  --ink:    #eceef8;
+  --ink-2:  #c2c6dd;
+  --muted:  #9ba0b8;
+  --muted-2:#5f647f;
 
   --good:   #4ade80;
   --good-tint: rgba(74, 222, 128, .16);
@@ -79,11 +79,11 @@
   --danger: #f87171;
   --danger-tint: rgba(248, 113, 113, .16);
 
-  --line:   #243352;
-  --line-2: #2f4068;
+  --line:   #2b2d49;
+  --line-2: #363963;
 
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, .35);
-  --shadow-md: 0 10px 24px -10px rgba(0, 0, 0, .55);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px -8px rgba(0, 0, 0, .5);
+  --shadow-md: 0 10px 34px -6px rgba(0, 0, 0, .6);
   --shadow-lg: 0 24px 50px -14px rgba(0, 0, 0, .65);
 }
 
@@ -152,11 +152,18 @@ button { font-family: inherit; }
 }
 .app-header__actions { display: flex; align-items: center; gap: 8px; }
 
-.theme-toggle { color: var(--muted); }
-.theme-toggle:hover { color: var(--ink); }
-.theme-toggle__moon { display: none; }
-:root[data-theme="dark"] .theme-toggle__sun { display: none; }
-:root[data-theme="dark"] .theme-toggle__moon { display: block; }
+.theme-toggle {
+  color: var(--muted);
+  background: var(--surface);
+  border: 1px solid var(--line-2);
+  transition: color .15s var(--ease), border-color .15s var(--ease), transform .15s var(--ease);
+}
+.theme-toggle:hover { color: var(--blue); border-color: var(--blue); background: var(--surface); transform: rotate(12deg); }
+/* Icon zeigt das Ziel-Theme: Mond im Hellmodus, Sonne im Dunkelmodus */
+.theme-toggle__sun { display: none; }
+.theme-toggle__moon { display: block; }
+:root[data-theme="dark"] .theme-toggle__sun { display: block; }
+:root[data-theme="dark"] .theme-toggle__moon { display: none; }
 
 /* ============================================================
    Buttons
@@ -292,7 +299,7 @@ button { font-family: inherit; }
 /* Per-Ziel-Akzent: app.js setzt --goal-color inline, alle Varianten werden abgeleitet.
    Ohne gesetzte Farbe fällt alles auf das Marken-Blau zurück. */
 .goal {
-  --gc: var(--goal-color, #2563eb);
+  --gc: var(--goal-color, #4f46e5);
   --goal-accent: var(--gc);
   --goal-deep:   color-mix(in srgb, var(--gc) 85%, black);
   --goal-bright: color-mix(in srgb, var(--gc) 78%, white);
@@ -334,7 +341,7 @@ button { font-family: inherit; }
   background: var(--goal-tint); padding: 3px 10px; border-radius: var(--r-full);
 }
 .goal.is-done .goal__pct { background: var(--goal-accent); color: #fff; }
-:root[data-theme="dark"] .goal.is-done .goal__pct { color: #0d1830; }
+:root[data-theme="dark"] .goal.is-done .goal__pct { color: #0e0f1e; }
 
 /* ---- Fortschrittsbalken (mit Vorschau-Segment) ---- */
 .progress {

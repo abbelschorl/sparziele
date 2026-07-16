@@ -3,7 +3,7 @@
 //   • App-Shell & Navigationen: network-first (online immer frisch, offline aus Cache)
 //   • Google Fonts: stale-while-revalidate (offline nach Erstbesuch)
 
-const VERSION = 'sparziele-v4';
+const VERSION = 'sparziele-v5';
 const SHELL_CACHE = `${VERSION}-shell`;
 const FONT_CACHE = `${VERSION}-fonts`;
 

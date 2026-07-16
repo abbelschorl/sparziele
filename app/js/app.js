@@ -5,7 +5,7 @@ import { computeGoal, computeOverview, sortGoals, formatEuro, toInputDate, compu
 const ICONS = ['🎯', '🛟', '🏖️', '📈', '🚗', '🏠', '✈️', '🎓', '🎁', '💍', '📱', '💻', '🛋️', '🐣'];
 
 const COLORS = [
-  ['#2563eb', 'Blau'], ['#0284c7', 'Himmelblau'], ['#0d9488', 'Türkis'], ['#16a34a', 'Grün'],
+  ['#4f46e5', 'Indigo'], ['#0284c7', 'Himmelblau'], ['#0d9488', 'Türkis'], ['#16a34a', 'Grün'],
   ['#7c3aed', 'Violett'], ['#db2777', 'Pink'], ['#ea580c', 'Orange'], ['#d97706', 'Gold'],
 ];
 
@@ -593,7 +593,7 @@ function applyTheme(theme) {
   document.documentElement.dataset.theme = theme;
   el.themeToggle.setAttribute('aria-pressed', String(theme === 'dark'));
   if (el.themeColorMeta) {
-    el.themeColorMeta.setAttribute('content', theme === 'dark' ? '#0d1830' : '#2563eb');
+    el.themeColorMeta.setAttribute('content', theme === 'dark' ? '#0e0f1e' : '#4f46e5');
   }
 }
 
